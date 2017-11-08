@@ -64,6 +64,6 @@ Currently: 0 TILs
 
 # License
 
- © 2016 - Charlie Gerard
+ © 2016 - Muhammad Taqi
 
  This repository is licensed under the MIT license. See LICENSE for details.
