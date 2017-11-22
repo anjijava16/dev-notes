@@ -1,0 +1,61 @@
+AWS S3 Tutorials:
+==============
+
+creating a bucket:
+-------------------
+S3 > Create bucket > unique name + region > create
+bucket > select > upload > upload file or drag n drop
+
+Backup Files to Amazon S3 using the AWS CLI
+---------------------------------------------
+Step 1: create login for aws console:
+IAM > Users > Create > username: AWS_Admin > Permissions > Attach policy > AdministratorFullAccess 
+> Manage password > Auto generated, uncheck require password change > apply
+> Download credentials > credentials.csv
+
+Step 2: install and configure aws cli
+download AWSCLI64.msi > install > windows run > cmd  
+
+Type aws configure and press enter. Enter the following when prompted:
+
+AWS Access Key ID [None]: enter the Access Key Id from the credentials.csv file you downloaded in step 1 part d
+
+Note: this should look something like AKIAPWINCOKAO3U4FWTN
+AWS Secret Access Key [None]: enter the Secret Access Key from the credentials.csv file you downloaded in step 1 part d
+
+Note: this should look something like 5dqQFBaGuPNf5z7NhFrgou4V5JJNaWPy1XFzBfX3
+
+Default region name [None]: enter us-east-1
+Default output format [None]: enter json
+
+Step 3: Using the AWS CLI with Amazon S3
+a. Creating a bucket is optional if you already have a bucket created that you want to use. 
+To create a new bucket named my-first-backup-bucket type aws s3 mb s3://my-first-backup-bucket
+
+Note: bucket naming has some restrictions; one of those restrictions is that bucket names must be globally unique (e.g. two different AWS users can not have the same bucket name);
+because of this, if you try the command above you will get a BucketAlreadyExists error.
+
+b. To upload the file my-first-backup.bak located in the local directory to the S3 bucket my-first-backup-bucket, 
+you would use the following command: 
+aws s3 cp my-first-backup.bak s3://my-first-backup-bucket/
+
+c. To download my-first-backup.bak from S3 to the local directory we would reverse the order of the commands as follows: 
+aws s3 cp s3://my-first-backup-bucket/my-first-backup.bak ./
+
+d. To delete my-first-backup.bak from your my-first-backup-bucket bucket, use the following command: 
+aws s3 rm s3://my-first-backup-bucket/my-first-backup.bak
+
+additional commands 
+recursively copying local files to s3
+aws s3 cp myDir s3://mybucket/ --recursive --exclude "*.jpg"
+
+recursively remove files (with caution!)
+aws s3 rm myDir s3://mybucket/ --recursive --exclude "*.jpg"
+
+list files:
+aws s3 ls s3://mybucket
+
+remove bucket:
+$ aws s3 rb s3://bucket-name
+or
+$ aws s3 rb s3://bucket-name --force

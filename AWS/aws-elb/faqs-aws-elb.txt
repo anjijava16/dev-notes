@@ -1,0 +1,80 @@
+Q: When should I use a Classic Load Balancer and when should I use an Application load balancer?
+
+A Classic Load Balancer is ideal for simple load balancing of traffic across multiple EC2 instances, while an Application Load Balancer is ideal for microservices or container-based architectures where there is a need to route traffic to multiple services or load balance across multiple ports on the same EC2 instance.
+
+Q: How do the features of a Classic Load Balancer compare to the features of an Application Load Balancer?
+
+The table below shows the key features for each load balancer.
+Feature	Classic Load Balancer	Application Load Balancer
+Supported Protocols	HTTP, HTTPS, TCP, SSL	HTTP, HTTPS, HTTP/2, WebSockets
+Supported Platforms	EC2-Classic, EC2-VPC	EC2-VPC
+Sticky Sessions (cookies)
+Yes	Yes
+Back-end Server Authentication
+Yes	No
+Idle Connection Timeout	Yes	Yes
+Connection Draining	Yes	Yes
+Cross-zone Load Balancing*	Yes	Always Enabled
+Health Checks	Yes	Enhanced
+Cloudwatch Metrics	Yes	Enhanced
+Access Logs
+Yes	Enhanced
+Path-based Routing
+No	Yes
+Dynamic Ports
+No	Yes
+Deletion Protection	No	Yes
+Request Tracing	No	Yes
+IPv6 in VPC	No	Yes
+AWS WAF	No	Yes
+* Cross-zone load balancing is always enabled for an Application Load Balancer. For a Classic Load Balancer, it is disabled by default, but can be enabled and disabled as needed.
+
+ 
+
+Q: Which operating systems does the Classic Load Balancer support?
+The Classic Load Balancer supports Amazon EC2 instances with any operating system currently supported by the Amazon EC2 service.
+
+Q: Which protocols does the Classic load balancer support?
+The Classic Load Balancer supports load balancing of applications using HTTP, HTTPS (Secure HTTP), SSL (Secure TCP) and TCP protocols.
+
+Q: What TCP ports can I load balance?
+You can perform load balancing for the following TCP ports:
+
+[EC2-VPC] 1-65535
+[EC2-Classic] 25, 80, 443, 465, 587, 1024-65535
+Q: Does the Classic load balancer support IPv6 traffic?
+Yes. Each Classic Load Balancer has an associated IPv4, IPv6, and dualstack (both IPv4 and IPv6) DNS name. IPv6 is not supported in VPC at this time.
+
+Q: Can I configure my Amazon EC2 instances to only accept traffic from Classic Load Balancers?
+Yes.
+
+Q: Can I configure a security group for the front-end of Classic Load Balancers?
+If you are using Amazon Virtual Private Cloud, you can configure security groups for the front-end of your Classic Load Balancers.
+
+Q: Can I load balance traffic to the zone apex of my domain (e.g., http://example.com)?
+Yes. Please refer to the Elastic Load Balancing Developer Tools for more information.
+
+Q: Can I use a single Classic Load Balancer for handling HTTP and HTTPS requests?
+Yes, you can map HTTP port 80 and HTTPS port 443 to a single Classic Load Balancer.
+
+Q: How many connections will my load balanced Amazon EC2 instances need to accept from each Classic load balancer?
+Classic Load Balancers do not cap the number of connections that they can attempt to establish with your load balanced Amazon EC2 instances. You can expect this number to scale with the number of concurrent HTTP, HTTPS, or SSL requests or the number of concurrent TCP connections that the Classic load balancers receive.
+
+Q: Can I load balance Amazon EC2 instances launched using a Paid AMI?
+You can load balance Amazon EC2 instances launched using a paid AMI from AWS Marketplace. However, Classic Load Balancers do not support instances launched using a paid AMI from Amazon DevPay site.
+Q: Can I use Classic Load Balancers in Amazon Virtual Private Cloud?
+Yes -- see the Elastic Load Balancing web page.
+Q: Can I get a history of Classic Load Balancer API calls made on my account for security analysis and operational troubleshooting purposes?
+Yes. To receive a history of Classic Load Balancer API calls made on your account, simply turn on CloudTrail in the AWS Management Console.
+
+Q: Do Classic Load Balancers support SSL termination?
+Yes you can terminate SSL on Classic Load Balancers. You must install an SSL certificate on each load balancer. The load balancers use this certificate to terminate the connection and then decrypt requests from clients before sending them to the back-end instances.
+
+Q: What are the steps to get a SSL certificate?
+You can either use AWS Certificate Manager to provision a SSL/TLS certificate or you can obtain the certificate from other sources by creating the certificate request, getting the certificate request signed by a CA, and then uploading the certificate using the AWS Identity and Access Management (IAM) service.
+
+Q: How do Classic load balancers integrate with AWS Certificate Manager (ACM)?
+Classic Load Balancers are now integrated with AWS Certificate Management (ACM). Integration with ACM makes it very simple to bind a certificate to each load balancer thereby making the entire SSL offload process very easy. Typically purchasing, uploading, and renewing SSL/TLS certificates is a time-consuming manual and complex process. With ACM integrated with Classic Load Balancers, this whole process has been shortened to simply requesting a trusted SSL/TLS certificate and selecting the ACM certificate to provision it with each load balancer.
+Sign Up Now
+
+© 2017, Amazon Web Services, Inc. or its affiliates. All rights reserved.

@@ -1,0 +1,532 @@
+Amazon VPC FAQs
+General Questions
+Q. What is Amazon Virtual Private Cloud (Amazon VPC)?
+
+Amazon VPC lets you provision a logically isolated section of the Amazon Web Services (AWS) cloud where you can launch AWS resources in a virtual network that you define. You have complete control over your virtual networking environment, including selection of your own IP address range, creation of subnets, and configuration of route tables and network gateways. You can also create a hardware Virtual Private Network (VPN) connection between your corporate datacenter and your VPC and leverage the AWS cloud as an extension of your corporate datacenter.
+
+You can easily customize the network configuration for your Amazon VPC. For example, you can create a public-facing subnet for your web servers that have access to the Internet, and place your backend systems such as databases or application servers in a private-facing subnet with no Internet access. You can leverage multiple layers of security, including security groups and network access control lists, to help control access to Amazon EC2 instances in each subnet.
+Manage Your AWS Resources
+
+Sign in to the Console
+ rackspace_fanatiguy-190x151
+FEATURED PARTNER: Rackspace
+Let Rackspace manage your AWS Cloud so you can focus on your business. Learn more
+Q. What are the components of Amazon VPC?
+
+Amazon VPC comprises a variety of objects that will be familiar to customers with existing networks:
+
+A Virtual Private Cloud (VPC): A logically isolated virtual network in the AWS cloud. You define a VPC’s IP address space from a range you select.
+Subnet: A segment of a VPC’s IP address range where you can place groups of isolated resources.
+Internet Gateway: The Amazon VPC side of a connection to the public Internet.
+NAT Gateway: A highly available, managed Network Address Translation (NAT) service for your resources in a private subnet to access the Internet.
+Hardware VPN Connection: A hardware-based VPN connection between your Amazon VPC and your datacenter, home network, or co-location facility.
+Virtual Private Gateway: The Amazon VPC side of a VPN connection.
+Customer Gateway: Your side of a VPN connection.
+Router: Routers interconnect subnets and direct traffic between Internet gateways, virtual private gateways, NAT gateways, and subnets.
+Peering Connection: A peering connection enables you to route traffic via private IP addresses between two peered VPCs.
+VPC Endpoint: Enables Amazon S3 access from within your VPC without using an Internet gateway or NAT, and allows you to control the access using VPC endpoint policies.
+Egress-only Internet Gateway: A stateful gateway to provide egress only access for IPv6 traffic from the VPC to the Internet
+Q. Why should I use Amazon VPC?
+
+Amazon VPC enables you to build a virtual network in the AWS cloud - no VPNs, hardware, or physical datacenters required. You can define your own network space and control how your network, and the Amazon EC2 resources inside your network, is exposed to the Internet. You can also leverage the greatly enhanced security options in Amazon VPC to provide more granular access both to and from the Amazon EC2 instances in your virtual network.
+Q. How do I get started with Amazon VPC?
+
+Your AWS resources are automatically provisioned in a ready-to-use default VPC. You can choose to create additional VPCs by going to the Amazon VPC page in the AWS Management Console and selecting "Start VPC Wizard".
+
+You’ll be presented with four basic options for network architectures. After selecting an option, you can modify the size and IP address range of the VPC and its subnets. If you select an option with Hardware VPN Access, you will need to specify the IP address of the VPN hardware on your network. You can modify the VPC to add more subnets or add or remove gateways at any time after the VPC has been created.
+
+The four options are:
+
+VPC with a Single Public Subnet Only
+VPC with Public and Private Subnets
+VPC with Public and Private Subnets and Hardware VPN Access
+VPC with a Private Subnet Only and Hardware VPN Access
+FEATURED PARTNER: DATADOG
+Monitor the Health of Your AWS Infrastructure at a Glance. Try free
+datadog-logo
+REDUCE THE COST OF BACKUPS WITH AWS
+Estimate your TCO savings from backup and archive when you use AWS
+Billing
+Q. How will I be charged and billed for my use of Amazon VPC?
+
+There are no additional charges for creating and using the VPC itself. Usage charges for other Amazon Web Services, including Amazon EC2, still apply at published rates for those resources, including data transfer charges. If you connect your VPC to your corporate datacenter using the optional hardware VPN connection, pricing is per VPN connection-hour (the amount of time you have a VPN connection in the "available" state.) Partial hours are billed as full hours. Data transferred over VPN connections will be charged at standard AWS Data Transfer rates. For VPC-VPN pricing information, please visit the pricing section of the Amazon VPC product page.
+Q. What defines billable VPN connection-hours?
+
+VPN connection-hours are billed for any time your VPN connections are in the "available" state. You can determine the state of a VPN connection via the AWS Management Console, CLI, or API. If you no longer wish to use your VPN connection, you simply terminate the VPN connection to avoid being billed for additional VPN connection-hours.
+Q. What usage charges will I incur if I use other AWS services, such as Amazon S3, from Amazon EC2 instances in my VPC?
+
+Usage charges for other Amazon Web Services, including Amazon EC2, still apply at published rates for those resources. Data transfer charges are not incurred when accessing Amazon Web Services, such as Amazon S3, via your VPC’s Internet gateway.
+
+If you access AWS resources via your VPN connection, you will incur Internet data transfer charges.
+Q: Do your prices include taxes?
+
+Except as otherwise noted, our prices are exclusive of applicable taxes and duties, including VAT and applicable sales tax. For customers with a Japanese billing address, use of AWS services is subject to Japanese Consumption Tax. Learn more.
+
+Connectivity
+Q. What are the connectivity options for my VPC?
+
+You may connect your VPC to:
+
+The Internet (via an Internet gateway)
+Your corporate data center using a Hardware VPN connection (via the virtual private gateway)
+Both the Internet and your corporate data center (utilizing both an Internet gateway and a virtual private gateway)
+Other AWS services (via Internet gateway, NAT, virtual private gateway, or VPC endpoints)
+Other VPCs (via VPC peering connections)
+Q. How do I connect my VPC to the Internet?
+
+Amazon VPC supports the creation of an Internet gateway. This gateway enables Amazon EC2 instances in the VPC to directly access the Internet.
+Q. Are there any bandwidth limitations for Internet gateways? Do I need to be concerned about its availability? Can it be a single point of failure?
+No. An Internet gateway is horizontally-scaled, redundant, and highly available. It imposes no bandwidth constraints.
+
+ 
+
+Q. How do instances in a VPC access the Internet?
+
+You can use public IP addresses, including Elastic IP addresses (EIPs), to give instances in the VPC the ability to both directly communicate outbound to the Internet and to receive unsolicited inbound traffic from the Internet (e.g., web servers).  You can also use the solutions in the next question.
+Q. How do instances without public IP addresses access the Internet?
+
+Instances without public IP addresses can access the Internet in one of two ways:
+Instances without public IP addresses can route their traffic through a NAT gateway or a NAT instance to access the Internet. These instances use the public IP address of the NAT gateway or NAT instance to traverse the Internet. The NAT gateway or NAT instance allows outbound communication but doesn’t allow machines on the Internet to initiate a connection to the privately addressed instances.
+For VPCs with a hardware VPN connection or Direct Connect connection, instances can route their Internet traffic down the virtual private gateway to your existing datacenter. From there, it can access the Internet via your existing egress points and network security/monitoring devices.
+Q. Can I connect to my VPC using a software VPN?
+
+Yes. You may use a third-party software VPN to create a site to site or remote access VPN connection with your VPC via the Internet gateway.
+Q. How does a hardware VPN connection work with Amazon VPC?
+
+A hardware VPN connection connects your VPC to your datacenter. Amazon supports Internet Protocol security (IPsec) VPN connections. Data transferred between your VPC and datacenter routes over an encrypted VPN connection to help maintain the confidentiality and integrity of data in transit. An Internet gateway is not required to establish a hardware VPN connection.
+Q. What is IPsec?
+
+IPsec is a protocol suite for securing Internet Protocol (IP) communications by authenticating and encrypting each IP packet of a data stream. 
+Q. Which customer gateway devices can I use to connect to Amazon VPC?
+
+There are two types of VPN connections that you can create: statically-routed VPN connections and dynamically-routed VPN connections. Customer gateway devices supporting statically-routed VPN connections must be able to:
+
+Establish IKE Security Association using Pre-Shared Keys
+Establish IPsec Security Associations in Tunnel mode
+Utilize the AES 128-bit or 256-bit encryption function
+Utilize the SHA-1 or SHA-2 (256) hashing function
+Utilize Diffie-Hellman (DH) Perfect Forward Secrecy in "Group 2" mode, or one of the additional DH groups we support
+Perform packet fragmentation prior to encryption
+In addition to the above capabilities, devices supporting dynamically-routed VPN connections must be able to:
+
+Establish Border Gateway Protocol (BGP) peerings
+Bind tunnels to logical interfaces (route-based VPN)
+Utilize IPsec Dead Peer Detection
+Q. Which Diffie-Hellman Groups do you support? 
+
+We support the following Diffie-Hellman (DH) groups in Phase1 and Phase2.
+
+Phase1 DH groups 2, 14-18, 22, 23, 24
+Phase2 DH groups 2, 5, 14-18, 22, 23, 24
+Q. What customer gateway devices are known to work with Amazon VPC?
+
+The following devices meeting the aforementioned requirements are known to work with hardware VPN connections, and have support in the command line tools for automatic generation of configuration files appropriate for your device:
+
+Statically-routed VPN connections
+Cisco ASA 5500 Series version 8.2 (or later) software
+Cisco ISR running Cisco IOS 12.4 (or later) software
+Dell SonicWALL Next Generation Firewalls (TZ, NSA, SuperMassive Series) running SonicOS5.8 (or later)
+Juniper J-Series Service Router running JunOS 9.5 (or later) software
+Juniper SRX-Series Services Gateway running JunOS 9.5 (or later) software
+Juniper SSG running ScreenOS 6.1, or 6.2 (or later) software
+Juniper ISG running ScreenOS 6.1, or 6.2 (or later) software
+Microsoft Windows Server 2008 R2 (or later) software
+Yamaha RTX1200 router
+Dynamically-routed VPN connections (requires BGP)
+Astaro Security Gateway running version 8.3 (or later)
+Astaro Security Gateway Essential Firewall Edition running version 8.3 (or later)
+Cisco ISR running Cisco IOS 12.4 (or later) software
+Dell SonicWALL Next Generation Firewalls (TZ, NSA, SuperMassive Series) running SonicOS5.9 (or later)
+Juniper J-Series Service Router running JunOS 9.5 (or later) software
+Juniper SRX-Series Services Gateway running JunOS 9.5 (or later) software
+Juniper SSG running ScreenOS 6.1, or 6.2 (or later) software
+Juniper ISG running ScreenOS 6.1, or 6.2 (or later) software
+Palo Alto Networks PA Series running PANOS 4.1.2 (or later) software
+Vyatta Network OS 6.5 (or later) software
+Yamaha RTX1200 router
+ 
+
+Please note, these sample configurations are for the minimum requirement of AES128, SHA1, and DH Group 2. You will need to modify these sample configuration files to take advantage of AES256, SHA256, or other DH groups.
+
+Q. If my device is not listed, where can I go for more information about using it with Amazon VPC?
+
+We recommend checking the Amazon VPC forum as other customers may be already using your device. 
+Q. Are there any VPN connection throughput limitations?
+
+Amazon does not enforce any restrictions on VPN throughput. However, other factors, such as the cryptographic capability of your customer gateway, the capacity of your Internet connection, average packet size, the protocol being used (TCP vs. UDP), and the network latency between your customer gateway and the virtual private gateway can affect throughput. 
+Q. What tools are available to me to help troubleshoot my Hardware VPN configuration?
+
+The DescribeVPNConnection API displays the status of the VPN connection, including the state ("up"/"down") of each VPN tunnel and corresponding error messages if either tunnel is "down". This information is also displayed in the AWS Management Console.
+Q. How do I connect a VPC to my corporate datacenter?
+
+Establishing a hardware VPN connection between your existing network and Amazon VPC allows you to interact with Amazon EC2 instances within a VPC as if they were within your existing network. AWS does not perform network address translation (NAT) on Amazon EC2 instances within a VPC accessed via a hardware VPN connection.
+Q. Can I NAT my CGW behind a router or firewall?
+
+Yes, you will need to enable NAT-T and open UDP port 4500 on your NAT device.
+
+Q. What IP address do I use for my CGW address? 
+
+You will use the public IP address of your NAT device.
+
+Q. How does my connection decide to use NAT-T? 
+
+If your device has NAT-T enabled on the tunnel, AWS will use it by default. You will need to open UDP port 4500 or else the tunnel will not establish.
+
+Q. How do I disable NAT-T on my connection? 
+
+You will need to disable NAT-T on your device. If you don’t plan on using NAT-T and it is not disabled on your device, we will attempt to establish a tunnel over UDP port 4500. If that port is not open the tunnel will not establish.
+
+Q. I would like to have multiple CGWs behind a NAT, what do I need to do to configure that? 
+
+You will use the public IP address of your NAT device for the CGW for each of your connections. You will also need to make sure UDP port 4500 is open.
+
+Q. How many IPsec security associations can be established concurrently per tunnel? 
+
+The AWS VPN service is a route-based solution, so when using a route-based configuration you will not run into SA limitations. If, however, you are using a policy-based solution you will need to limit to a single SA, as the service is a route-based solution.
+IP Addressing
+Q. What IP address ranges can I use within my VPC?
+
+You can address your VPC from any IPv4 address range, including RFC 1918 or publicly routable IP blocks. Publicly routable IP blocks are only reachable via the Virtual Private Gateway and cannot be accessed over the Internet through the Internet gateway. AWS does not advertise customer-owned IP address blocks to the Internet. You can allocate an Amazon-provided IPv6 CIDR block to a VPC by calling the relevant API or via the AWS Management Console.  
+
+Q. How do I assign IP address ranges to VPCs?
+
+You assign a single Classless Internet Domain Routing (CIDR) IP address block when you create a VPC. Subnets within a VPC are addressed from this range by you. A VPC can be assigned at most one (1) IP address range at any given time; addressing a VPC from multiple IP address ranges is currently not supported. Please note that while you can create multiple VPCs with overlapping IP address ranges, doing so will prohibit you from connecting these VPCs to a common home network via the hardware VPN connection. For this reason we recommend using non-overlapping IP address ranges.  You can allocate an Amazon-provided IPv6 CIDR block to your VPC.
+Q. What IP address ranges are assigned to a default VPC?
+
+Default VPCs are assigned a CIDR range of 172.31.0.0/16. Default subnets within a default VPC are assigned /20 netblocks within the VPC CIDR range. 
+Q. Can I advertise my VPC public IP address range to the Internet and route the traffic through my datacenter, via the hardware VPN, and to my VPC?
+
+Yes, you can route traffic via the hardware VPN connection and advertise the address range from your home network.
+Q. How large of a VPC can I create?
+
+Currently, Amazon VPC supports VPCs between /28 (in CIDR notation) and /16 in size for IPv4. The IP address range of your VPC should not overlap with the IP address ranges of your existing network.
+
+For IPv6, the VPC is a fixed size of /56 (in CIDR notation). A VPC can have both IPv4 and IPv6 CIDR blocks associated to it.
+
+Q. Can I change a VPC's size?
+No. To change the size of a VPC you must terminate your existing VPC and create a new one.
+Q. How many subnets can I create per VPC?
+
+Currently you can create 200 subnets per VPC. If you would like to create more, please submit a case at the support center.
+Q. Is there a limit on how large or small a subnet can be?
+
+The minimum size of a subnet is a /28 (or 14 IP addresses.) for IPv4. Subnets cannot be larger than the VPC in which they are created.
+
+For IPv6, the subnet size is fixed to be a /64. Only one IPv6 CIDR block can be allocated to a subnet.
+Q. Can I use all the IP addresses that I assign to a subnet?
+
+No. Amazon reserves the first four (4) IP addresses and the last one (1) IP address of every subnet for IP networking purposes. 
+Q. How do I assign private IP addresses to Amazon EC2 instances within a VPC?
+
+When you launch an Amazon EC2 instance within a VPC, you may optionally specify the primary private IP address for the instance. If you do not specify the primary private IP address, AWS automatically addresses it from the IP address range you assign to that subnet. You can assign secondary private IP addresses when you launch an instance, when you create an Elastic Network Interface, or any time after the instance has been launched or the interface has been created.
+Q. Can I change the private IP addresses of an Amazon EC2 instance while it is running and/or stopped within a VPC?
+
+Primary private IP addresses are retained for the instance's or interface's lifetime. Secondary private IP addresses can be assigned, unassigned, or moved between interfaces or instances at any time.
+Q. If an Amazon EC2 instance is stopped within a VPC, can I launch another instance with the same IP address in the same VPC?
+
+No. An IP address assigned to a running instance can only be used again by another instance once that original running instance is in a “terminated” state. 
+Q. Can I assign IP addresses for multiple instances simultaneously?
+
+No. You can specify the IP address of one instance at a time when launching the instance. 
+Q. Can I assign any IP address to an instance?
+
+You can assign any IP address to your instance as long as it is:
+
+Part of the associated subnet's IP address range
+Not reserved by Amazon for IP networking purposes
+Not currently assigned to another interface
+Q. Can I assign multiple IP addresses to an instance?
+
+Yes. You can assign one or more secondary private IP addresses to an Elastic Network Interface or an EC2 instance in Amazon VPC. The number of secondary private IP addresses you can assign depends on the instance type. See the EC2 User Guide for more information on the number of secondary private IP addresses that can be assigned per instance type.
+Q. Can I assign one or more Elastic IP (EIP) addresses to VPC-based Amazon EC2 instances?
+
+Yes, however, the EIP addresses will only be reachable from the Internet (not over the VPN connection). Each EIP address must be associated with a unique private IP address on the instance. EIP addresses should only be used on instances in subnets configured to route their traffic directly to the Internet gateway. EIPs cannot be used on instances in subnets configured to use a NAT gateway or a NAT instance to access the Internet.  This is applicable only for IPv4. Amazon VPCs do not support EIPs for IPv6 at this time. 
+
+Routing & Topology
+Q. What does an Amazon VPC router do?
+
+An Amazon VPC router enables Amazon EC2 instances within subnets to communicate with Amazon EC2 instances in other subnets within the same VPC. The VPC router also enables subnets, Internet gateways, and virtual private gateways to communicate with each other. Network usage data is not available from the router; however, you can obtain network usage statistics from your instances using Amazon CloudWatch.
+Q. Can I modify the VPC route tables?
+
+Yes. You can create route rules to specify which subnets are routed to the Internet gateway, the virtual private gateway, or other instances.
+Q. Can I specify which subnet will use which gateway as its default?
+
+Yes. You may create a default route for each subnet. The default route can direct traffic to egress the VPC via the Internet gateway, the virtual private gateway, or the NAT gateway.
+Q. Does Amazon VPC support multicast or broadcast?
+
+No.
+Security & Filtering
+Q. How do I secure Amazon EC2 instances running within my VPC?
+
+Amazon EC2 security groups can be used to help secure instances within an Amazon VPC. Security groups in a VPC enable you to specify both inbound and outbound network traffic that is allowed to or from each Amazon EC2 instance. Traffic which is not explicitly allowed to or from an instance is automatically denied.
+
+In addition to security groups, network traffic entering and exiting each subnet can be allowed or denied via network Access Control Lists (ACLs).
+Q. What are the differences between security groups in a VPC and network ACLs in a VPC?
+
+Security groups in a VPC specify which traffic is allowed to or from an Amazon EC2 instance. Network ACLs operate at the subnet level and evaluate traffic entering and exiting a subnet. Network ACLs can be used to set both Allow and Deny rules. Network ACLs do not filter traffic between instances in the same subnet. In addition, network ACLs perform stateless filtering while security groups perform stateful filtering. 
+Q. What is the difference between stateful and stateless filtering?
+
+Stateful filtering tracks the origin of a request and can automatically allow the reply to the request to be returned to the originating computer. For example, a stateful filter that allows inbound traffic to TCP port 80 on a webserver will allow the return traffic, usually on a high numbered port (e.g., destination TCP port 63, 912) to pass through the stateful filter between the client and the webserver. The filtering device maintains a state table that tracks the origin and destination port numbers and IP addresses. Only one rule is required on the filtering device: Allow traffic inbound to the web server on TCP port 80.
+
+Stateless filtering, on the other hand, only examines the source or destination IP address and the destination port, ignoring whether the traffic is a new request or a reply to a request. In the above example, two rules would need to be implemented on the filtering device: one rule to allow traffic inbound to the web server on TCP port 80, and another rule to allow outbound traffic from the webserver (TCP port range 49, 152 through 65, 535).
+Q. Within Amazon VPC, can I use SSH key pairs created for instances within Amazon EC2, and vice versa?
+
+Yes. 
+Q. Can Amazon EC2 instances within a VPC communicate with Amazon EC2 instances not within a VPC?
+
+Yes. If an Internet gateway has been configured, Amazon VPC traffic bound for Amazon EC2 instances not within a VPC traverses the Internet gateway and then enters the public AWS network to reach the EC2 instance. If an Internet gateway has not been configured, or if the instance is in a subnet configured to route through the virtual private gateway, the traffic traverses the VPN connection, egresses from your datacenter, and then re-enters the public AWS network.
+Q. Can Amazon EC2 instances within a VPC in one region communicate with Amazon EC2 instances within a VPC in another region?
+
+Yes, they can communicate using public IP addresses, NAT gateway, NAT instances, VPN connections, or Direct Connect connections.   
+
+Q. Can Amazon EC2 instances within a VPC communicate with Amazon S3?
+
+Yes. There are multiple options for your resources within a VPC to communicate with Amazon S3. You can use VPC Endpoint for S3, which makes sure all traffic remains within Amazon's network and enables you to apply additional access policies to your Amazon S3 traffic. You can use an Internet gateway to enable Internet access from your VPC and instances in the VPC can communicate with Amazon S3. You can also make all traffic to Amazon S3 traverse the Direct Connect or VPN connection, egress from your datacenter, and then re-enter the public AWS network.
+Q. Why can’t I ping the router, or my default gateway, that connects my subnets?
+
+Ping (ICMP Echo Request and Echo Reply) requests to the router in your VPC is not supported. Ping between Amazon EC2 instances within VPC is supported as long as your operating system's firewalls, VPC security groups, and network ACLs permit such traffic.
+Q. Can I monitor the network traffic in my VPC?
+
+Yes. You can use the Amazon VPC Flow Logs feature to monitor the network traffic in your VPC.
+Amazon VPC & EC2
+Q. Within which Amazon EC2 region(s) is Amazon VPC available?
+
+Amazon VPC is currently available in multiple Availability Zones in all Amazon EC2 regions. 
+Q. Can a VPC span multiple Availability Zones?
+
+Yes. 
+Q. Can a subnet span Availability Zones?
+
+No. A subnet must reside within a single Availability Zone. 
+Q. How do I specify which Availability Zone my Amazon EC2 instances are launched in?
+
+When you launch an Amazon EC2 instance you must specify the subnet in which to launch the instance. The instance will be launched in the Availability Zone associated with the specified subnet. 
+Q. How do I determine which Availability Zone my subnets are located in?
+
+When you create a subnet you must specify the Availability Zone in which to place the subnet. When using the VPC Wizard, you can select the subnet's Availability Zone in the wizard confirmation screen. When using the API or the CLI you can specify the Availability Zone for the subnet as you create the subnet. If you don’t specify an Availability Zone, the default "No Preference" option will be selected and the subnet will be created in an available Availability Zone in the region.
+Q. Am I charged for network bandwidth between instances in different subnets?
+
+If the instances reside in subnets in different Availability Zones, you will be charged $0.01 per GB for data transfer.
+Q. When I call DescribeInstances(), do I see all of my Amazon EC2 instances, including those in EC2-Classic and EC2-VPC?
+
+Yes. DescribeInstances() will return all running Amazon EC2 instances. You can differentiate EC2-Classic instances from EC2-VPC instances by an entry in the subnet field. If there is a subnet ID listed, the instance is within a VPC. 
+Q. When I call DescribeVolumes(), do I see all of my Amazon EBS volumes, including those in EC2-Classic and EC2-VPC?
+
+Yes. DescribeVolumes() will return all your EBS volumes. 
+Q. How many Amazon EC2 instances can I use within a VPC?
+
+You can run any number of Amazon EC2 instances within a VPC, so long as your VPC is appropriately sized to have an IP address assigned to each instance. You are initially limited to launching 20 Amazon EC2 instances at any one time and a maximum VPC size of /16 (65,536 IPs). If you would like to increase these limits, please complete the following form.
+Q. Can I use my existing AMIs in Amazon VPC?
+
+You can use AMIs in Amazon VPC that are registered within the same region as your VPC. For example, you can use AMIs registered in us-east-1 with a VPC in us-east-1. More information is available in the Amazon EC2 Region and Availability Zone FAQ. 
+Q. Can I use my existing Amazon EBS snapshots?
+
+Yes, you may use Amazon EBS snapshots if they are located in the same region as your VPC. More details are available in the Amazon EC2 Region and Availability Zone FAQ.
+Q: Can I boot an Amazon EC2 instance from an Amazon EBS volume within Amazon VPC?
+
+Yes, however, an instance launched in a VPC using an Amazon EBS-backed AMI maintains the same IP address when stopped and restarted. This is in contrast to similar instances launched outside a VPC, which get a new IP address. The IP addresses for any stopped instances in a subnet are considered unavailable. 
+Q. Can I use Amazon EC2 Reserved Instances with Amazon VPC?
+
+Yes. You can reserve an instance in Amazon VPC when you purchase Reserved Instances. When computing your bill, AWS does not distinguish whether your instance runs in Amazon VPC or standard Amazon EC2. AWS automatically optimizes which instances are charged at the lower Reserved Instance rate to ensure you always pay the lowest amount. However, your instance reservation will be specific to Amazon VPC. Please see the Reserved Instances page for further details. 
+Q. Can I employ Amazon CloudWatch within Amazon VPC?
+
+Yes. 
+Q. Can I employ Auto Scaling within Amazon VPC?
+
+Yes. 
+Q. Can I launch Amazon EC2 Cluster Instances in a VPC?
+
+Yes. Cluster instances are supported in Amazon VPC, however, not all instance types are available in all regions and Availability Zones.
+Default VPCs
+Q. What is a default VPC?
+
+A default VPC is a logically isolated virtual network in the AWS cloud that is automatically created for your AWS account the first time you provision Amazon EC2 resources. When you launch an instance without specifying a subnet-ID, your instance will be launched in your default VPC.
+Q. What are the benefits of a default VPC?
+
+When you launch resources in a default VPC, you can benefit from the advanced networking functionalities of Amazon VPC (EC2-VPC) with the ease of use of Amazon EC2 (EC2-Classic). You can enjoy features such as changing security group membership on the fly, security group egress filtering, multiple IP addresses, and multiple network interfaces without having to explicitly create a VPC and launch instances in the VPC.
+Q. What accounts are enabled for default VPC?
+
+If your AWS account was created after March 18, 2013 your account may be able to launch resources in a default VPC. See this Forum Announcement to determine which regions have been enabled for the default VPC feature set. Also, accounts created prior to the listed dates may utilize default VPCs in any default VPC enabled region in which you’ve not previously launched EC2 instances or provisioned Amazon Elastic Load Balancing, Amazon RDS, Amazon ElastiCache, or Amazon Redshift resources.
+Q. How can I tell if my account is configured to use a default VPC?
+
+The Amazon EC2 console indicates which platforms you can launch instances in for the selected region, and whether you have a default VPC in that region. Verify that the region you'll use is selected in the navigation bar. On the Amazon EC2 console dashboard, look for "Supported Platforms" under "Account Attributes". If there are two values, EC2-Classic and EC2-VPC, you can launch instances into either platform. If there is one value, EC2-VPC, you can launch instances only into EC2-VPC. Your default VPC ID will be listed under "Account Attributes" if your account is configured to use a default VPC. You can also use the EC2 DescribeAccountAttributes API or CLI to describe your supported platforms.
+Q. Will I need to know anything about Amazon VPC in order to use a default VPC?
+
+No. You can use the AWS Management Console, AWS EC2 CLI, or the Amazon EC2 API to launch and manage EC2 instances and other AWS resources in a default VPC. AWS will automatically create a default VPC for you and will create a default subnet in each Availability Zone in the AWS region. Your default VPC will be connected to an Internet gateway and your instances will automatically receive public IP addresses, just like EC2-Classic.
+Q. What are the differences between instances launched in EC2-Classic and EC2-VPC?
+
+See Differences between EC2-Classic and EC2-VPC in the EC2 User Guide.
+Q. Do I need to have a VPN connection to use a default VPC?
+
+No. Default VPCs are attached to the Internet and all instances launched in default subnets in the default VPC automatically receive public IP addresses. You can add a VPN connection to your default VPC if you choose.
+Q. Can I create other VPCs and use them in addition to my default VPC?
+
+Yes. To launch an instance into nondefault VPCs you must specify a subnet-ID during instance launch.
+Q. Can I create additional subnets in my default VPC, such as private subnets?
+
+Yes. To launch into nondefault subnets, you can target your launches using the console or the --subnet option from the CLI, API, or SDK.
+Q. How many default VPCs can I have?
+
+You can have one default VPC in each AWS region where your Supported Platforms attribute is set to "EC2-VPC".
+Q. What is the IP range of a default VPC?
+
+The default VPC CIDR is 172.31.0.0/16. Default subnets use /20 CIDRs within the default VPC CIDR.
+Q. How many default subnets are in a default VPC?
+
+One default subnet is created for each Availability Zone in your default VPC.
+Q. Can I specify which VPC is my default VPC?
+
+Not at this time.
+Q. Can I specify which subnets are my default subnets?
+
+Not at this time.
+Q. Can I delete a default VPC?
+
+Yes. Contact AWS Support if you've deleted your default VPC and want to have it reset.
+Q. Can I delete a default subnet?
+
+Yes, but once deleted, it’s gone. Your future instance launches will be placed in your remaining default subnet(s). 
+Q. I have an existing EC2-Classic account. Can I get a default VPC?
+
+The simplest way to get a default VPC is to create a new account in a region that is enabled for default VPCs, or use an existing account in a region you've never been to before, as long as the Supported Platforms attribute for that account in that region is set to "EC2-VPC".
+Q. I really want a default VPC for my existing EC2 account. Is that possible?
+
+Yes, however, we can only enable an existing account for a default VPC if you have no EC2-Classic resources for that account in that region. Additionally, you must terminate all non-VPC provisioned Elastic Load Balancers, Amazon RDS, Amazon ElastiCache, and Amazon Redshift resources in that region. After your account has been configured for a default VPC, all future resource launches, including instances launched via Auto Scaling, will be placed in your default VPC. To request your existing account be setup with a default VPC, contact AWS Support. We will review your request and your existing AWS services and EC2-Classic presence to determine if you are eligible for a default VPC.
+Q. How are IAM accounts impacted by default VPC?
+
+If your AWS account has a default VPC, any IAM accounts associated with your AWS account use the same default VPC as your AWS account.
+Elastic Network Interfaces
+Q. Can I attach or detach one or more network interfaces to an EC2 instance while it’s running?
+
+Yes.
+Q. Can I have more than two network interfaces attached to my EC2 instance?
+
+The total number of network interfaces that can be attached to an EC2 instance depends on the instance type. See the EC2 User Guide for more information on the number of allowed network interfaces per instance type.
+Q. Can I attach a network interface in one Availability Zone to an instance in another Availability Zone?
+
+Network interfaces can only be attached to instances residing in the same Availability Zone. 
+Q. Can I attach a network interface in one VPC to an instance in another VPC?
+
+Network interfaces can only be attached to instances in the same VPC as the interface. 
+Q. Can I use Elastic Network Interfaces as a way to host multiple websites requiring separate IP addresses on a single instance?
+
+Yes, however, this is not a use case best suited for multiple interfaces. Instead, assign additional private IP addresses to the instance and then associate EIPs to the private IPs as needed.
+Q. Will I get charged for an Elastic IP Address that is associated to a network interface but the network interface isn’t attached to a running instance?
+
+Yes. 
+Q. Can I detach the primary interface (eth0) on my EC2 instance?
+
+No. You can attach and detach secondary interfaces (eth1-ethn) on an EC2 instance, but you can’t detach the eth0 interface. 
+Peering Connections
+Q. Can I create a peering connection to a VPC in a different region? 
+
+No. Peering connections are only available between VPCs in the same region.
+
+Q. Can I peer my VPC with a VPC belonging to another AWS account? 
+
+Yes, assuming the owner of the other VPC accepts your peering connection request.
+
+Q. Can I peer two VPCs with matching IP address ranges?
+
+No. Peered VPCs must have non-overlapping IP ranges.
+
+Q. How much do VPC peering connections cost? 
+
+There is no charge for creating VPC peering connections, however, data transfer across peering connections is charged. See the Data Transfer section of the EC2 Pricing page for data transfer rates.
+
+Q. Can I use AWS Direct Connect or hardware VPN connections to access VPCs I’m peered with? 
+
+No. “Edge to Edge routing” isn’t supported in Amazon VPC. Refer to the VPC Peering Guide for additional information.
+
+Q. Do I need an Internet Gateway to use peering connections? 
+
+No. VPC peering connections do not require an Internet Gateway.
+
+Q. Is VPC peering traffic within the region encrypted? 
+
+No. Traffic between instances in peered VPCs remains private and isolated – similar to how traffic between two instances in the same VPC is private and isolated.
+
+Q. If I delete my side of a peering connection, will the other side still have access to my VPC? 
+
+No. Either side of the peering connection can terminate the peering connection at any time. Terminating a peering connection means traffic won’t flow between the two VPCs.
+
+Q. If I peer VPC A to VPC B and I peer VPC B to VPC C, does that mean VPCs A and C are peered? 
+
+No. Transitive peering relationships are not supported.
+
+Q. What if my peering connection goes down? 
+
+AWS uses the existing infrastructure of a VPC to create a VPC peering connection; it is neither a gateway nor a VPN connection, and does not rely on a separate piece of physical hardware. There is no single point of failure for communication or a bandwidth bottleneck.
+
+Q. Are there any bandwidth limitations for peering connections?
+
+Bandwidth between instances in peered VPCs is no different than bandwidth between instances in the same VPC. Note: A placement group can span peered VPCs; however, you will not get full-bisection bandwidth between instances in peered VPCs. Read more about Placement Groups.
+ClassicLink
+Q. What is ClassicLink?
+
+Amazon Virtual Private Cloud (VPC) ClassicLink allows EC2 instances in the EC2-Classic platform to communicate with instances in a VPC using private IP addresses. To use ClassicLink, enable it for a VPC in your account, and associate a Security Group from that VPC with an instance in EC2-Classic. All the rules of your VPC Security Group will apply to communications between instances in EC2-Classic and instances in the VPC. 
+Q. What does ClassicLink cost?
+
+There is no additional charge for using ClassicLink; however, existing cross Availability Zone data transfer charges will apply. For more information, consult the EC2 pricing page.
+Q. How do I use ClassicLink?
+
+In order to use ClassicLink, you first need to enable at least one VPC in your account for ClassicLink. Then you associate a Security Group from the VPC with the desired EC2-Classic instance. The EC2-Classic instance is now linked to the VPC and is a member of the selected Security Group in the VPC. Your EC2-Classic instance cannot be linked to more than one VPC at the same time.
+Q. Does the EC2-Classic instance become a member of the VPC?
+
+The EC2-Classic instance does not become a member of the VPC. It becomes a member of the VPC Security Group that was associated with the instance. All the rules and references to the VPC Security Group apply to communication between instances in EC2-Classic instance and resources within the VPC.
+
+Q. Can I use EC2 public DNS hostnames from my EC2-Classic and EC2-VPC instances to address each other, in order to communicate using private IP?
+
+No. The EC2 public DNS hostname will not resolve to the private IP address of the EC2-VPC instance when queried from an EC2-Classic instance, and vice-versa.
+Q. Are there any VPCs for which I cannot enable ClassicLink?
+
+Yes. ClassicLink cannot be enabled for a VPC that has a Classless Inter-Domain Routing (CIDR) that is within the 10.0.0.0/8 range, with the exception of 10.0.0.0/16 and 10.1.0.0/16.  In addition, ClassicLink cannot be enabled for any VPC that has a route table entry pointing to the 10.0.0.0/8 CIDR space to a target other than "local".
+
+Q. Can traffic from an EC2-Classic instance travel through the Amazon VPC and egress through the Internet gateway, virtual private gateway, or to peered VPCs?
+
+Traffic from an EC2-Classic instance can only be routed to private IP addresses within the VPC. They will not be routed to any destinations outside the VPC, including Internet gateway, virtual private gateway, or peered VPC destinations.
+
+Q. Does ClassicLink affect the access control between the EC2-Classic instance, and other instances that are in the EC2-Classic platform?
+
+ClassicLink does not change the access control defined for an EC2-Classic instance through its existing Security Groups from the EC2-Classic platform.
+
+Q. Will ClassicLink settings on my EC2-Classic instance persist through stop/start cycles?
+
+The ClassicLink connection will not persist through stop/start cycles of the EC2-Classic instance. The EC2-Classic instance will need to be linked back to a VPC after it is stopped and started. However, the ClassicLink connection will persist through instance reboot cycles.
+
+Q. Will my EC2-Classic instance be assigned a new, private IP address after I enable ClassicLink?
+
+There is no new private IP address assigned to the EC2-Classic instance. When you enable ClassicLink on an EC2-Classic instance, the instance retains and uses its existing private IP address to communication with resources in a VPC.
+
+Q: Does ClassicLink allow EC2-Classic Security Group rules to reference VPC Security Groups, or vice versa?
+
+ClassicLink does not allow EC2-Classic Security Group rules to reference VPC Security Groups, or vice versa.
+
+Additional Questions
+Q. Can I use the AWS Management Console to control and manage Amazon VPC?
+
+Yes. You can use the AWS Management Console to manage Amazon VPC objects such as VPCs, subnets, route tables, Internet gateways, and IPSec VPN connections. Additionally, you can use a simple wizard to create a VPC.
+Q. How many VPCs, subnets, Elastic IP addresses, Internet gateways, customer gateways, virtual private gateways, and VPN connections can I create?
+
+You can have:
+
+Five Amazon VPCs per AWS account per region
+Two hundred subnets per Amazon VPC
+Five Amazon VPC Elastic IP addresses per AWS account per region
+One Internet gateway per VPC
+Five virtual private gateways per AWS account per region
+Fifty customer gateways per AWS account per region
+Ten IPsec VPN Connections per virtual private gateway
+See the VPC User Guide for more information on VPC limits.
+
+ 
+
+Q. Does the Amazon VPC VPN Connection have a Service Level Agreement (SLA)?
+
+Not currently. 
+Q. Can I obtain AWS Support with Amazon VPC?
+
+Yes. Click here for more information on AWS Support. 
+Q. Can I use ElasticFox with Amazon VPC?
+
+ElasticFox is no longer officially supported for managing your Amazon VPC. Amazon VPC support is available via the AWS APIs, command line tools, and the AWS Management Console, as well as a variety of third-party utilities.

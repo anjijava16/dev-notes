@@ -1,0 +1,94 @@
+Launch a Linux Virtual Machine
+===============================
+Step 1: Launch an Amazon EC2 Instance
+EC2 console > launch instance
+
+Step 2: Configure your Instance
+a. Amazon Linux AMI
+b. t2.micro > default options
+c. review and launch 
+d. create new key pair > "MyKeyPair" > Download key pair
+Windows users: We recommend saving your key pair in your user directory in a sub-directory called .ssh (ex. C:\user\{yourusername}\.ssh\MyKeyPair.pem).
+Mac/Linux users: We recommend saving your key pair in the .ssh sub-directory from your home directory (ex. ~/.ssh/MyKeyPair.pem).
+Note: On Mac, the key pair is downloaded to your Downloads directory by default. 
+To move the key pair into the .ssh sub-directory, enter the following command in a terminal window: mv ~/Downloads/MyKeyPair.pem ~/.ssh/MyKeyPair.pem
+
+click Launch instance
+
+e. EC2 > View instances
+f. make note of public ip address of the new instance
+
+Step 3: Connect to your Instance
+Windows users:  Select Windows below to see instructions for installing Git Bash.
+Mac/Linux user: Select Mac / Linux below to see instructions for opening a terminal window.
+
+a. instructions to install git bash
+b. open git bash to run ssh command
+c. connect to your instance
+
+Windows users: Enter ssh -i 'c:\Users\yourusername\.ssh\MyKeyPair.pem' ec2-user@{IP_Address} (ex. ssh -i 'c:\Users\adamglic\.ssh\MyKeyPair.pem' ec2-user@52.27.212.125)
+Mac/Linux users: Enter ssh -i ~/.ssh/MyKeyPair.pem ec2-user@{IP_Address} (ex. ssh -i ~/.ssh/MyKeyPair.pem ec2-user@52.27.212.125)
+
+Note: if you started a Linux instance that isn't Amazon Linux, there may by a different user name that is used. 
+common user names include ec2-user, root, ubuntu, and fedora. 
+If you are unsure what the login user name is, check with your AMI provider.
+
+You'll see a response similar to the following:
+
+The authenticity of host 'ec2-198-51-100-1.compute-1.amazonaws.com (10.254.142.33)' can't be established. 
+RSA key fingerprint is 1f:51:ae:28:df:63:e9:d8:cf:38:5d:87:2d:7b:b8:ca:9f:f5:b1:6f. 
+Are you sure you want to continue connecting (yes/no)?
+
+Type yes and press enter.
+
+You'll see a response similar to the following:
+
+Warning: Permanently added 'ec2-198-51-100-1.compute-1.amazonaws.com' (RSA) to the list of known hosts.
+
+You should then see the welcome screen for your instance and you are now connected to your AWS Linux virtual machine in the cloud.
+
+
+Step 4: Terminate Your Instance
+a. EC2 console > instance > actions > Instance state > Terminate
+b. confirm yes to terminate
+
+
+Launch a Windows Virtual Machine
+================================
+Step 1: Enter the EC2 Dashboard
+EC2 > console
+
+Step 2: Create and Configure Your Virtual Machine
+a. launch instance
+b. Microsoft Windows Server 2012 R2 Base > select 
+c. instance type > t2.micro > Review and launch
+d. default options > launch
+
+Step 3: Create a Key Pair and Launch Your Instance
+a. popover > select "create a new key pair" > name: "MyKeyPair" > Download key pair > MyFirstKey.pem
+
+Windows users: We recommend saving your key pair in your user directory in a sub-directory called .ssh (ex.C:\user\{yourusername}\.ssh\MyFirstKey.pem).
+Mac/Linux users: We recommend saving your key pair in the .ssh sub-directory from your home directory (ex.~/.ssh/MyFirstKey.pem). 
+
+b. Launch instance
+c. on the next screen "View instances" > status
+
+Step 4: Connect to Your Instance
+connect using RDP
+
+a. select instance > connect
+b. login
+The User name defaults to Administrator
+To receive your password, click Get Password
+c. choose MyFirstKey.pem > Decrypt password
+d. save decrypted password in a safe location
+
+Step 6: Connect to Your Instance
+RDP client
+a. Click download remote desktop file
+b. enter username and password
+you should be logged in!!
+
+Step 7: Terminate Your Windows VM
+a. EC2 Consolle > select instance > actions > Instance state > Terminate
+b. confirm yes to terminate

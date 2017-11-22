@@ -1,0 +1,1457 @@
+Q: What is changing?
+
+EC2 instance and reservation IDs, and volume and snapshot IDs for EBS and Storage Gateway, are changing to a longer format. The transition to longer instance and reservation IDs started in January 2016 and will last through early December 2016, and the transition to longer volume and snapshot IDs started in April 2016 and will last through early December 2016. During this time, you can choose which ID format these resources are assigned, and you can update your management tools and scripts to add support for the longer format. After early December 2016, all newly created instances, reservations, volumes, and snapshots will be required to use the longer ID format.
+
+The new format will only apply to newly created resources; your existing resources won’t be affected. Visit the AWS Blog for a step-by-step overview of how to opt in to longer IDs.
+
+Q: Will I need to upgrade to a new version of the AWS SDKs or CLI?
+
+To use the AWS CLI and SDKs with longer IDs, you must upgrade to the following versions:
+
+- PHPv2: Must upgrade to v2.8.27+
+- PHPv3: Must upgrade to v3.15.0+
+- CLI: Must upgrade to v1.10.2+
+- Boto3: Must upgrade to v1.2.1+
+- Botocore: Must upgrade to v1.3.24+
+
+The following SDKs are fully compatible with longer IDs and do not need to be upgraded: PHP v1, Boto v1, Boto v2, Ruby v1, Ruby v2, JavaScript, Java, .NET, AWS Tools for Windows PowerShell, and Go.
+
+For all tools, if you wish to use the new ModifyIdFormat and DescribeIdFormat APIs, you will need to update your tools to receive the new APIs starting in January 2016.
+
+Q: What will the new identifier format look like?
+
+The new identifier format will follow the pattern of the current identifier format, but it will be longer. The new format will be <resource identifier>-<17 characters>, e.g. “i-1234567890abcdef0” for EC2 instances or “snap-1234567890abcdef0” for EBS snapshots.
+An example of the new instance ID format in the EC2 Console is shown below. 
+
+new instance ID format
+Q: Why is this necessary?
+
+We need to do this given how fast AWS is continuing to grow; we will start to run low on IDs for certain EC2 and EBS resources within a year or so. In order to enable the long-term, uninterrupted creation of new instances, reservations, volumes, and snapshots, we need to introduce a longer ID format for these resources. Additional identifiers might need to expand within the next few years as well.
+
+Q: How does this impact me?
+
+There is a good chance that you won’t need to make any system changes to handle the new format. If you only use the console to manage AWS resources, you might not be impacted at all, but you should still update your settings to use the longer ID format as soon as possible. If you interact with AWS resources via APIs, SDKs, or the AWS CLI, you might be impacted, depending on whether your software makes assumptions about the ID format when validating or persisting resource IDs. If this is the case, you might need to update your systems to handle the new format.
+
+Some failure modes could include:
+• If your systems use regular expressions to validate the ID format, you might error if a longer format is encountered.
+• If there are expectations about the ID length in your database schemas, you might be unable to store a longer ID.
+
+Depending on the tools you are using, you may need to upgrade to newer versions of the AWS CLI and SDKs. See above for a list of affected tools and compatible versions.
+
+Q: Will this affect existing resources?
+
+No; only resources that are created after you opt in to the longer format will be affected. Once a resource has been assigned an ID (long or short), that ID will never change. Any resource created with the old ID format will always retain its shorter ID, and any resource created with the new format will retain its longer ID, even if you opt back out.
+
+Q: When will this happen?
+
+The rollout timeline for longer instance and reservation IDs is shown below. 
+
+Instance, reservation, volume, and snapshot ID rollout timeline
+Starting on January 13, 2016, longer EC2 instance and reservation IDs are available for opt-in via APIs and the console. Between January 2016 and December 2016, all accounts can opt in and out of longer instance and reservation IDs as needed for testing.
+
+Starting on April 28, 2016, new accounts default to longer EC2 instance and reservation IDs in every AWS region except Beijing (China) and AWS GovCloud (US), with the option to request the shorter format if needed.
+Longer EBS and Storage Gateway volume and snapshot IDs are available from April 25, 2016 for opt-in via APIs and the Console. New accounts created in June 2016 or later will default to longer snapshot and volume IDs, with the option to opt out if needed.
+Early December 2016 is the deadline to add support for longer IDs. The longer IDs transition will occur one region at a time, between December 5, 2016 and December 16, 2016. After that point, the option to switch formats will no longer be available, and all newly created instance, reservation, volume, and snapshot IDs will have the longer format.
+
+Q: Why is the rollout period so long?
+
+We want to give you as much time as possible to test your systems with the new format. A long transition window offers maximum flexibility to test and update your systems incrementally and will help minimize interrupts as you add support for the new format.
+
+Q: What if I prefer to keep receiving the shorter ID format after December 2016?
+
+Unfortunately, this is not possible regardless of your user settings specified.
+Q: How does opting in work? And opting out?
+
+Throughout the transition period (January 2016 to December 2016), you can opt to receive longer or shorter IDs by using the APIs or the EC2 Console. ModifyIdFormat sets the format of instance and reservation IDs, and DescribeIdFormat lets you view your ID format settings. Both APIs apply to the user making the call and are region-specific. ID format settings can be modified per IAM user, region, and resource type. Any IAM user without explicit settings will fall back to the settings of the root account. Usually, after you update your ID format settings, it can take a few minutes for the settings to take effect.
+
+If your testing uncovers issues that you need to address, you can opt back out of the new, longer ID format until your systems are prepared to handle longer IDs. This option will be available until December 2016. From December 2016, the new, longer ID format will become mandatory, and the shorter format will no longer be available.
+
+Q: How can I opt in the entire account at once?
+
+Yes, you can opt in using the AWS CLI modify-identity-id-format and describe-identity-id-format and specify the desired ARN and resource type. You will need to do this separately for each resource type (instances, volumes, reservations, and snapshots). To opt in the entire account, you must specify the root account as the Amazon Resource Name (ARN). This will apply changes across the account, and you will not need to set each individual user/role preference. For more information, see the EC2 User Guide or Knowledge Center.
+
+Note: If you opt in the root user, all users/roles launching instances on the account will adopt the root user preference unless their specific user/role (ARN) opt-in preference is already explicitly set. You should only opt in the root user if you are confident that all services using your account supports longer IDs.
+
+Q: How can I opt in across all regions at once?
+
+You can opt in across all regions at once using the Longer-Id-Converter tool. Using this tool you can opt in all regions and all resources. This tool will migrate not only the root or admin account but also all IAM roles/users under the root account across all regions. You can also use this tool to check your opt-in status for your account. For more information about this tool, refer to README file.
+
+Note: If your systems run into an issue after transitioning to longer IDs, you can use the same tool to revert back to using shorter IDs for your account across all regions.
+
+Q: Can I opt in to longer IDs per IAM role?
+
+Yes, you can use the new modify-Identity-id-format and describe-identity-id-format APIs to control and view how different identities are opted in to using longer IDs. You can choose to opt in to longer IDs on a per-account, per-IAM role, or per-IAM user basis. Opting in by IAM user or role can help you test your systems before opting in your entire account. For more information, see the EC2 User Guide.
+
+Note: In the 2015-10-01 version of the Amazon EC2 API, if you call describe-id-format or modify-id-format using IAM role credentials, the results apply to the entire AWS account, and not the specific IAM role. In the current version of the Amazon EC2 API, the results will correctly apply to the IAM role only. 
+
+Q: What will happen if I take no action?
+
+If you do not opt in to the new format during the transition window, you will be automatically opted in at the final deadline in December 2016. We do not recommend this approach; it is better to add support for the new format during the transition window, which offers the opportunity for controlled testing.
+
+Q: What is a reservation ID? Do reservation IDs only apply to Reserved Instances?
+
+Reservation IDs apply to all instances, and are different from Reserved Instances. Every instance launched by EC2 has a reservation ID. A reservation ID has a one-to-one relationship with an instance launch request, but can be associated with more than one instance if you launch multiple instances using the same launch request. The reservation ID is returned by the DescribeInstances API, and it can be viewed in the EC2 Management Console description of any given instance (see below).
+
+reservation ID
+Q: What best practices do you recommend as I test my systems and add support for the new ID formats?
+
+If your software can run under multiple distinct AWS accounts, choose (or create) an AWS account to test with. Alternatively, if your software runs under a single AWS account, choose (or create) an IAM user to test with.
+
+Set your chosen account or IAM user to receive longer IDs, test your software, and make any necessary changes. Note that if one IAM user launches an instance with a longer ID, all other users will be able to see the longer ID in subsequent describe calls, regardless of user-specific opt-in settings. Once you are comfortable that your software will operate as expected, you can opt in all of your accounts and / or users. If any unexpected issues arise, you can opt out until the issues are understood and corrected. This testing procedure will be possible until the December 2016 deadline, when all new instances, reservations, volumes, and snapshots will receive the longer ID format.
+
+Once your software is ready for longer IDs, opt in to longer IDs across all of your accounts, regions and resources. When this is complete, you have transitioned to the new format fully and will not need to take further action.
+Q: How do I know when I’ve finished the opt-in process for longer resource IDs?
+
+Once you are done with the testing process described above, opt in to longer IDs across every region and user. Alternatively, you can opt in the root user for every region; this will update the ID format settings for the whole account, as long as no individual IAM users are opted out. You will need to do this separately for each resource type (instances, volumes, reservations, and snapshots). Once this is complete, you are done with the transition process and will not need to make further changes for these resource types. Note that, since existing resources will retain their original IDs, you might see a mix of long IDs (for new resources) and short IDs (for pre-existing resources) when you are done with the opt-in process.
+Q: What will be the default ID type for new accounts?
+
+For instances and reservations, accounts created on April 28, 2016 or later will be configured to receive the longer ID format by default in every AWS region except Beijing (China) and AWS GovCloud (US). If you are a new customer, this will make the transition to longer instance and reservation IDs really simple. If you would like your new account to assign the shorter ID format to your resources, then simply reconfigure your account for shorter IDs as described above. This workflow will be necessary until you are ready for your accounts to receive longer IDs.
+For volumes and snapshots, accounts created in June 2016 or later will be configured to receive the longer ID format by default, with the option to opt out if necessary until December 2016.
+Q: Will you be changing other identifiers?
+
+As AWS continues growing, it’s possible that we will need to increase the ID length of other resources in the future.
+Q: Does this apply to Spot instances?
+Yes; the longer instance and reservation ID formats will apply to all EC2 instance types.
+Q: I’m an EC2 Windows customer; is there anything Windows-specific I need to know?
+
+If you use EC2 instance IDs as part of the computer name for your EC2 Windows instances, please note that Windows will automatically truncate the name to 15 characters to adhere to NetBIOS naming conventions. Due to this truncation behavior, you may see duplicate computer names at 15 characters if you’re using this naming convention. We recommend choosing a unique naming scheme to avoid complications.
+
+Q: How can I opt in new Auto Scaling instances to longer IDs?
+
+Auto Scaling reflects the setting of the root user. This supersedes what has been configured by the IAM role. 
+
+Q: I use AWS through a third-party tool, what do I need to do to handle longer IDs?
+
+We are working with third parties to ensure the best customer experience, but please work with your ISV to determine their level of support for this change prior to turning on the longer ID format in your account.
+
+Q: When will the longer IDs’ final transition happen?
+
+The longer IDs transition will occur one region at a time, between December 5, 2016 and December 16, 2016. You can check the scheduled transition date for your each region by using the AWS CLI describe-id-format.
+
+Q: If I opt in to longer IDs and then opt back out during the transition window, what will happen to resources that were created with longer IDs?
+
+Once a resource has been assigned an ID it will not change, so resources that are created with longer IDs will retain the longer IDs regardless of later actions. If you opt in to the longer format, create resources, and then opt out, you will see a mix of long and short resource IDs, even after opting out. The only way to get rid of long IDs will be to delete or terminate the respective resources.
+
+For this reason, exercise caution and avoid creating critical resources with the new format until you have tested your tools and automation.
+
+Q: What should I do if my systems are not working as expected before the final transition, December 16th 2016?
+
+If your systems are not working as expected during the transition period, you can temporarily opt out of longer format IDs and remediate your systems, however your account will automatically be transitioned back to using longer IDs after December 16th, 2016. Regardless of your account settings, all new instances, reservations, volumes, and snapshots will receive the longer format IDs, so it is important for you to test your systems with longer format IDs before the final transition window starts. By testing and opting in earlier, you give yourself valuable time to make modifications to your resources with short resource IDs and you minimize the risk of any impact to your systems.
+Q: What will happen if I launch EC2 and EBS resources in multiple regions during the final transition window in December 2016?
+
+Your resources’ ID length will depend upon the region you launch your resources. If the region has already transitioned to using longer IDs, resources launched in that region will have longer format IDs; if not, they will have shorter resource IDs. Therefore, during the transition window, you may see a mix of shorter and longer resource IDs; however, after December 16th 2016, all new resources will have longer format IDs in all regions.
+Q: If AWS adds new regions during the transition window, will new regions support longer IDs?
+
+Yes. All new regions launching in the second half of 2016 and after will issue longer format instances, reservations, volumes, and snapshot IDs by default for both new and existing accounts.
+
+General
+Q: What is Amazon Elastic Compute Cloud (Amazon EC2)?
+
+Amazon Elastic Compute Cloud (Amazon EC2) is a web service that provides resizable compute capacity in the cloud. It is designed to make web-scale computing easier for developers.
+
+ 
+
+Q: What can I do with Amazon EC2?
+
+Just as Amazon Simple Storage Service (Amazon S3) enables storage in the cloud, Amazon EC2 enables “compute” in the cloud. Amazon EC2’s simple web service interface allows you to obtain and configure capacity with minimal friction. It provides you with complete control of your computing resources and lets you run on Amazon’s proven computing environment. Amazon EC2 reduces the time required to obtain and boot new server instances to minutes, allowing you to quickly scale capacity, both up and down, as your computing requirements change. Amazon EC2 changes the economics of computing by allowing you to pay only for capacity that you actually use.
+
+ 
+
+Q: How can I get started with Amazon EC2?
+
+To sign up for Amazon EC2, click the “Sign up for This Web Service” button on the Amazon EC2 detail page. You must have an Amazon Web Services account to access this service; if you do not already have one, you will be prompted to create one when you begin the Amazon EC2 sign-up process. After signing up, please refer to the Amazon EC2 documentation, which includes our Getting Started Guide.
+
+ 
+
+Q: Why am I asked to verify my phone number when signing up for Amazon EC2?
+
+Amazon EC2 registration requires you to have a valid phone number and email address on file with AWS in case we ever need to contact you. Verifying your phone number takes only a couple of minutes and involves receiving a phone call during the registration process and entering a PIN number using the phone key pad.
+
+Q: What can developers now do that they could not before?
+
+Until now, small developers did not have the capital to acquire massive compute resources and ensure they had the capacity they needed to handle unexpected spikes in load. Amazon EC2 enables any developer to leverage Amazon’s own benefits of massive scale with no up-front investment or performance compromises. Developers are now free to innovate knowing that no matter how successful their businesses become, it will be inexpensive and simple to ensure they have the compute capacity they need to meet their business requirements.
+
+The “Elastic” nature of the service allows developers to instantly scale to meet spikes in traffic or demand. When computing requirements unexpectedly change (up or down), Amazon EC2 can instantly respond, meaning that developers have the ability to control how many resources are in use at any given point in time. In contrast, traditional hosting services generally provide a fixed number of resources for a fixed amount of time, meaning that users have a limited ability to easily respond when their usage is rapidly changing, unpredictable, or is known to experience large peaks at various intervals.
+
+ 
+
+Q: How do I run systems in the Amazon EC2 environment?
+
+Once you have set up your account and select or create your AMIs, you are ready to boot your instance. You can start your AMI on any number of On-Demand instances by using the RunInstances API call. You simply need to indicate how many instances you wish to launch. If you wish to run more than 20 On-Demand instances, complete the Amazon EC2 instance request form.
+
+If Amazon EC2 is able to fulfill your request, RunInstances will return success, and we will start launching your instances. You can check on the status of your instances using the DescribeInstances API call. You can also programmatically terminate any number of your instances using the TerminateInstances API call.
+
+If you have a running instance using an Amazon EBS boot partition, you can also use the StopInstances API call to release the compute resources but preserve the data on the boot partition. You can use the StartInstances API when you are ready to restart the associated instance with the Amazon EBS boot partition.
+
+In addition, you have the option to use Spot Instances to reduce your computing costs when you have flexibility in when your applications can run. Read more about Spot Instances for a more detailed explanation on how Spot Instances work.
+
+If you prefer, you can also perform all these actions from the AWS Management Console or through the command line using our command line tools, which have been implemented with this web service API.
+
+ 
+
+Q: What is the difference between using the local instance store and Amazon Elastic Block storage (Amazon EBS) for the root device?
+
+When you launch your Amazon EC2 instances you have the ability to store your root device data on Amazon EBS or the local instance store. By using Amazon EBS, data on the root device will persist independently from the lifetime of the instance. This enables you to stop and restart the instance at a subsequent time, which is similar to shutting down your laptop and restarting it when you need it again.
+
+Alternatively, the local instance store only persists during the life of the instance. This is an inexpensive way to launch instances where data is not stored to the root device. For example, some customers use this option to run large web sites where each instance is a clone to handle web traffic.
+
+ 
+
+Q: How quickly will systems be running?
+
+It typically takes less than 10 minutes from the issue of the RunInstances call to the point where all requested instances begin their boot sequences. This time is dependant on a number of factors including: the size of your AMI, the number of instances you are launching, and how recently you have launched that AMI. Images launched for the first time may take slightly longer to boot.
+
+ 
+
+Q: How do I load and store my systems with Amazon EC2?
+
+Amazon EC2 allows you to set up and configure everything about your instances from your operating system up to your applications. An Amazon Machine Image (AMI) is simply a packaged-up environment that includes all the necessary bits to set up and boot your instance. Your AMIs are your unit of deployment. You might have just one AMI or you might compose your system out of several building block AMIs (e.g., webservers, appservers, and databases). Amazon EC2 provides a number of tools to make creating an AMI easy. Once you create a custom AMI, you will need to bundle it. If you are bundling an image with a root device backed by Amazon EBS, you can simply use the bundle command in the AWS Management Console. If you are bundling an image with a boot partition on the instance store, then you will need to use the AMI Tools to upload it to Amazon S3. Amazon EC2 uses Amazon EBS and Amazon S3 to provide reliable, scalable storage of your AMIs so that we can boot them when you ask us to do so.
+
+Or, if you want, you don’t have to set up your own AMI from scratch. You can choose from a number of globally available AMIs that provide useful instances. For example, if you just want a simple Linux server, you can choose one of the standard Linux distribution AMIs.
+
+ 
+
+Q: How do I access my systems?
+
+The RunInstances call that initiates execution of your application stack will return a set of DNS names, one for each system that is being booted. This name can be used to access the system exactly as you would if it were in your own data center. You own that machine while your operating system stack is executing on it.
+
+ 
+
+Q: Is Amazon EC2 used in conjunction with Amazon S3?
+
+Yes, Amazon EC2 is used jointly with Amazon Simple Storage Service (Amazon S3) for instances with root devices backed by local instance storage. By using Amazon S3, developers have access to the same highly scalable, reliable, fast, inexpensive data storage infrastructure that Amazon uses to run its own global network of web sites. In order to execute systems in the Amazon EC2 environment, developers use the tools provided to load their Amazon Machine Images (AMIs) into Amazon S3 and to move them between Amazon S3 and Amazon EC2. See How do I load and store my systems with Amazon EC2? for more information about AMIs.
+
+We expect developers to find the combination of Amazon EC2 and Amazon S3 to be very useful. Amazon EC2 provides cheap, scalable compute in the cloud while Amazon S3 allows users to store their data reliably.
+
+ 
+
+Q: How many instances can I run in Amazon EC2?
+
+You are limited to running up to at total of 20 On-Demand instances across the instance family, purchasing 20 Reserved Instances, and requesting Spot Instances per your dynamic Spot limit per region. New AWS accounts may start with limits that are lower than the limits described here. Certain instance types are further limited per region as follows:
+
+Q: Are there any limitations in sending email from EC2 instances?
+
+Yes. In order to maintain the quality of EC2 addresses for sending email, we enforce default limits on the amount of email that can be sent from EC2 accounts. If you wish to send larger amounts of email from EC2, you can apply to have these limits removed from your account by filling out this form.
+
+Q: How quickly can I scale my capacity both up and down?
+
+Amazon EC2 provides a truly elastic computing environment. Amazon EC2 enables you to increase or decrease capacity within minutes, not hours or days. You can commission one, hundreds or even thousands of server instances simultaneously. When you need more instances, you simply call RunInstances, and Amazon EC2 will typically set up your new instances in a matter of minutes. Of course, because this is all controlled with web service APIs, your application can automatically scale itself up and down depending on its needs.
+
+Q: What operating system environments are supported?
+
+Amazon EC2 currently supports a variety of operating systems including: Amazon Linux, Ubuntu, Windows Server, Red Hat Enterprise Linux, SUSE Linux Enterprise Server, Fedora, Debian, CentOS, Gentoo Linux, Oracle Linux, and FreeBSD. We are looking for ways to expand it to other platforms.
+Q: Does Amazon EC2 use ECC memory?
+
+In our experience, ECC memory is necessary for server infrastructure, and all the hardware underlying Amazon EC2 uses ECC memory.
+
+Q: How is this service different than a plain hosting service?
+
+Traditional hosting services generally provide a pre-configured resource for a fixed amount of time and at a predetermined cost. Amazon EC2 differs fundamentally in the flexibility, control and significant cost savings it offers developers, allowing them to treat Amazon EC2 as their own personal data center with the benefit of Amazon.com’s robust infrastructure.
+
+When computing requirements unexpectedly change (up or down), Amazon EC2 can instantly respond, meaning that developers have the ability to control how many resources are in use at any given point in time. In contrast, traditional hosting services generally provide a fixed number of resources for a fixed amount of time, meaning that users have a limited ability to easily respond when their usage is rapidly changing, unpredictable, or is known to experience large peaks at various intervals.
+
+Secondly, many hosting services don’t provide full control over the compute resources being provided. Using Amazon EC2, developers can choose not only to initiate or shut down instances at any time, they can completely customize the configuration of their instances to suit their needs – and change it at any time. Most hosting services cater more towards groups of users with similar system requirements, and so offer limited ability to change these.
+
+Finally, with Amazon EC2, developers enjoy the benefit of paying only for their actual resource consumption – and at very low rates. Most hosting services require users to pay a fixed, up-front fee irrespective of their actual computing power used, and so users risk overbuying resources to compensate for the inability to quickly scale up resources within a short time frame.
+Billing
+Q: How will I be charged and billed for my use of Amazon EC2?
+
+You pay only for what you use and there is no minimum fee. Pricing is per instance-hour consumed for each instance type. Partial instance-hours consumed are billed as full hours. Data transferred between AWS services in different regions will be charged as Internet Data Transfer on both sides of the transfer. Usage for other Amazon Web Services is billed separately from Amazon EC2.
+
+For EC2 pricing information, please visit the pricing section on the EC2 detail page.
+
+Q: When does billing of my Amazon EC2 systems begin and end?
+
+Billing commences when Amazon EC2 initiates the boot sequence of an AMI instance. Billing ends when the instance terminates, which could occur through a web services command, by running "shutdown -h", or through instance failure. When you stop an instance, we shut it down but don't charge hourly usage for a stopped instance, or data transfer fees, but we do charge for the storage for any Amazon EBS volumes. To learn more, visit the AWS Documentation.
+ 
+
+Q: What defines billable EC2 instance-hours?
+
+Instance-hours are billed for any time your instances are in a "running" state. If you no longer wish to be charged for your instance, you must "stop" or "terminate" the instance to avoid being billed for additional instance-hours. Billing starts when an instance transitions into the running state.
+
+Q: If I have two instances in different availability zones, how will I be charged for regional data transfer?
+
+Each instance is charged for its data in and data out at corresponding Data Transfer rates. Therefore, if data is transferred between these two instances, it is charged at "Data Transfer Out from EC2 to Another AWS Region" for the first instance and at "Data Transfer In from Another AWS Region" for the second instance. Please refer to this page for detailed data transfer
+
+Q. If I have two instances in different regions, how will I be charged for data transfer?
+
+Each instance is charged for its data in and data out at Internet Data Transfer rates. Therefore, if data is transferred between these two instances, it is charged at Internet Data Transfer Out for the first instance and at Internet Data Transfer In for the second instance.
+
+Q: Do your prices include taxes?
+
+Except as otherwise noted, our prices are exclusive of applicable taxes and duties, including VAT and applicable sales tax. For customers with a Japanese billing address, use of AWS services is subject to Japanese Consumption Tax. Learn more.
+Hardware Information
+Q: What kind of hardware will my application stack run on?
+
+Visit Amazon EC2 Pricing for a list of instances available by region.
+
+Q: How do I select the right instance type?
+
+Amazon EC2 instances are grouped into 5 families: General Purpose, Compute Optimized, Memory Optimized, GPU, and Storage Optimized instances. General Purpose Instances have memory to CPU ratios suitable for most general purpose applications and come with fixed performance (M4 and M3 instances) or burstable performance (T2); Compute Optimized instances (C4 and C3 instances) have proportionally more CPU resources than memory (RAM) and are well suited for scale out compute-intensive applications and High Performance Computing (HPC) workloads; Memory Optimized Instances (R3 and R4 instances) offer larger memory sizes for memory-intensive applications, including database and memory caching applications; GPU Compute instances (P2) take advantage of the parallel processing capabilities of NVIDIA Tesla GPUs for high performance parallel computing; GPU Graphics instances (G2) offer high-performance 3D graphics capabilities for applications using OpenGL and DirectX; Storage Optimized Instances include I3 and I2 instances that provide very high, low latency, I/O capacity using SSD-based local instance storage for I/O-intensive applications and D2, Dense-storage instances, that provide high storage density and sequential I/O performance for data warehousing, Hadoop and other data-intensive applications. When choosing instance types, you should consider the characteristics of your application with regards to resource utilization (i.e. CPU, Memory, Storage) and select the optimal instance family and instance size.
+Q: M1 and M3 standard instances have the same ratio of CPU and memory. When should I use one instance over the other?
+
+M3 instances provide better, more consistent performance than M1 instances for most use-cases. M3 instances also offer SSD-based instance storage that delivers higher I/O performance. M3 instances are also less expensive than M1 instances. For these reasons, we recommend M3 for applications that require general purpose instances with a balance of compute, memory, and network resources. However, if you need more disk storage than what is provided in M3 instances, you may still find M1 instances useful for running your applications.
+ 
+
+Q: What is an “EC2 Compute Unit” and why did you introduce it?
+
+Transitioning to a utility computing model fundamentally changes how developers have been trained to think about CPU resources. Instead of purchasing or leasing a particular processor to use for several months or years, you are renting capacity by the hour. Because Amazon EC2 is built on commodity hardware, over time there may be several different types of physical hardware underlying EC2 instances. Our goal is to provide a consistent amount of CPU capacity no matter what the actual underlying hardware.
+
+Amazon EC2 uses a variety of measures to provide each instance with a consistent and predictable amount of CPU capacity. In order to make it easy for developers to compare CPU capacity between different instance types, we have defined an Amazon EC2 Compute Unit. The amount of CPU that is allocated to a particular instance is expressed in terms of these EC2 Compute Units. We use several benchmarks and tests to manage the consistency and predictability of the performance from an EC2 Compute Unit. The EC2 Compute Unit (ECU) provides the relative measure of the integer processing power of an Amazon EC2 instance. Over time, we may add or substitute measures that go into the definition of an EC2 Compute Unit, if we find metrics that will give you a clearer picture of compute capacity.
+
+Q: What is the regional availability of Amazon EC2 instance types?
+For a list of all instances and regional availability, visit Amazon EC2 Pricing.
+Security
+Q: How do I prevent other people from viewing my systems?
+
+You have complete control over the visibility of your systems. The Amazon EC2 security systems allow you to place your running instances into arbitrary groups of your choice. Using the web services interface, you can then specify which groups may communicate with which other groups, and also which IP subnets on the Internet may talk to which groups. This allows you to control access to your instances in our highly dynamic environment. Of course, you should also secure your instance as you would any other server.
+
+Q: Can I get a history of all EC2 API calls made on my account for security analysis and operational troubleshooting purposes? 
+
+Yes. To receive a history of all EC2 API calls (including VPC and EBS) made on your account, you simply turn on CloudTrail in the AWS Management Console.  For more information, visit the CloudTrail home page. 
+ 
+
+Q: Where can I find more information about security on AWS?
+
+For more information on security on AWS please refer to our Amazon Web Services: Overview of Security Processes white paper and to our Amazon EC2 running Windows Security Guide.
+Elastic IP
+Q: Why am I limited to 5 Elastic IP addresses per region?
+
+Public (IPV4) internet addresses are a scarce resource. There is only a limited amount of public IP space available, and Amazon EC2 is committed to helping use that space efficiently.
+
+By default, all accounts are limited to 5 Elastic IP addresses per region. If you need more the 5 Elastic IP addresses, we ask that you apply for your limit to be raised. We will ask you to think through your use case and help us understand your need for additional addresses. You can apply for more Elastic IP address here. Any increases will be specific to the region they have been requested for.
+
+Q: Why am I charged when my Elastic IP address is not associated with a running instance?
+
+In order to help ensure our customers are efficiently using the Elastic IP addresses, we impose a small hourly charge for each address when it is not associated to a running instance.
+
+Q: Do I need one Elastic IP address for every instance that I have running?
+
+No. You do not need an Elastic IP address for all your instances. By default, every instance comes with a private IP address and an internet routable public IP address. The private address is associated exclusively with the instance and is only returned to Amazon EC2 when the instance is stopped or terminated. The public address is associated exclusively with the instance until it is stopped, terminated or replaced with an Elastic IP address. These IP addresses should be adequate for many applications where you do not need a long lived internet routable end point. Compute clusters, web crawling, and backend services are all examples of applications that typically do not require Elastic IP addresses.
+
+Q: How long does it take to remap an Elastic IP address?
+
+The remap process currently takes several minutes from when you instruct us to remap the Elastic IP until it fully propagates through our system.
+
+Q: Can I configure the reverse DNS record for my Elastic IP address?
+
+Yes, you can configure the reverse DNS record of your Elastic IP address by filling out this form. Note that a corresponding forward DNS record pointing to that Elastic IP address must exist before we can create the reverse DNS record.
+Availability Zones
+ 
+
+Q: How isolated are Availability Zones from one another?
+
+Each Availability Zone runs on its own physically distinct, independent infrastructure, and is engineered to be highly reliable. Common points of failures like generators and cooling equipment are not shared across Availability Zones. Additionally, they are physically separate, such that even extremely uncommon disasters such as fires, tornados or flooding would only affect a single Availability Zone.
+
+ 
+
+Q: Is Amazon EC2 running in more than one region?
+
+Yes. Please refer to Regional Products and Services for more details of our product and service availability by region.
+
+ 
+
+Q: How can I make sure that I am in the same Availability Zone as another developer?
+
+We do not currently support the ability to coordinate launches into the same Availability Zone across AWS developer accounts. One Availability Zone name (for example, us-east-1a) in two AWS customer accounts may relate to different physical Availability Zones.
+ 
+
+Q: If I transfer data between Availability Zones using public IP addresses, will I be charged twice for Regional Data Transfer (once because it’s across zones, and a second time because I’m using public IP addresses)?
+
+No. Regional Data Transfer rates apply if at least one of the following is true, but is only charged once for a given instance even if both are true:
+
+The other instance is in a different Availability Zone, regardless of which type of address is used.
+Public or Elastic IP addresses are used, regardless of which Availability Zone the other instance is in.
+Enhanced Networking
+Q: What networking capabilities are included in this feature?
+
+We currently support enhanced networking capabilities using SR-IOV (Single Root I/O Virtualization). SR-IOV is a method of device virtualization that provides higher I/O performance and lower CPU utilization compared to traditional implementations. For supported Amazon EC2 instances, this feature provides higher packet per second (PPS) performance, lower inter-instance latencies, and very low network jitter.
+
+Q: Why should I use Enhanced Networking?
+
+If your applications benefit from high packet-per-second performance and/or low latency networking, Enhanced Networking will provide significantly improved performance, consistence of performance and scalability.
+
+Q: How can I enable Enhanced Networking on supported instances?
+
+In order to enable this feature, you must launch an HVM AMI with the appropriate drivers. R4, X1, I3, P2 and m4.16xlarge instances provide the Elastic Network Adapter (ENA) interface (which uses the “ena” Linux driver) for Enhanced Networking. C3, C4, R3, I2, M4 (except m4.16xlarge) and D2 instances use Intel® 82599g Virtual Function Interface (which uses the “ixgbevf” Linux driver). Amazon Linux AMI includes both of these drivers by default. For AMIs that do not contain these drivers, you will need to download and install the appropriate drivers based on the instance types you plan to use. You can use Linux or Windows instructions to enable Enhanced Networking in AMIs that do not include the SR-IOV driver by default. Enhanced Networking is only supported in Amazon VPC.
+Q: Do I need to pay an additional fee to use Enhanced Networking?
+
+No, there is no additional fee for Enhanced Networking. To take advantage of Enhanced Networking you need to launch the appropriate AMI on a supported instance type in a VPC.
+
+Q: Why is Enhanced Networking only supported in Amazon VPC?
+
+Amazon VPC allows us to deliver many advanced networking features to you that are not possible in EC2-Classic. Enhanced Networking is another example of a capability enabled by Amazon VPC.
+
+Q: Which instance types support Enhanced Networking?
+
+Currently C3, C4, D2, I3, I2 M4, X1 and R3 instances support Enhanced Networking. X1, P2, I3, R4 and m4.16xlarge instances provide the Elastic Network Adapter (ENA) interface for Enhanced Networking. C3, C4, R3, I2, M4 (except m4.16xlarge) and D2 instances, use Intel® 82599 Virtual Function Interface.
+
+Q. Which instance types offer NVMe instance storage?
+
+High I/O instances use NVMe based local instance storage to deliver very high, low latency, I/O capacity to applications, and are optimized for applications that require millions of IOPS. Like Cluster instances, High I/O instances can be clustered via cluster placement groups for high bandwidth networking.
+Amazon Elastic Block Storage (EBS)
+Q: What happens to my data when a system terminates?
+
+The data stored on a local instance store will persist only as long as that instance is alive. However, data that is stored on an Amazon EBS volume will persist independently of the life of the instance. Therefore, we recommend that you use the local instance store for temporary data and, for data requiring a higher level of durability, we recommend using Amazon EBS volumes or backing up the data to Amazon S3. If you are using an Amazon EBS volume as a root partition, you will need to set the Delete On Terminate flag to "N" if you want your Amazon EBS volume to persist outside the life of the instance.
+
+ 
+
+Q: What kind of performance can I expect from Amazon EBS volumes?
+
+Amazon EBS provides three volume types: General Purpose (SSD) volumes, Provisioned IOPS (SSD) volumes, and Magnetic volumes. These volume types differ in performance characteristics and price, allowing you to tailor your storage performance and cost to the needs of your applications. For more performance infomation see the EBS product details page.
+For additional information on Amazon EBS performance, see the Amazon EC2 User Guide’s EBS section.
+
+Q: What is the EBS General Purpose (SSD) volume type?
+
+The EBS General Purpose (SSD) volumes are backed by the same technology found in EBS Provisioned IOPS (SSD) volumes. The EBS General Purpose (SSD) volume type is designed for 99.999% availability, and a broad range of use-cases such as boot volumes, small and medium size databases, and development and test environments. General Purpose (SSD) volumes deliver a ratio of 3 IOPS per GB, offer single digit millisecond latencies, and also have the ability to burst up to 3000 IOPS for short periods.
+
+Q: Which volume type should I choose?
+
+Customers can now choose between three EBS volume types to best meet the needs of their workloads: General Purpose (SSD), Provisioned IOPS (SSD), and Magnetic. General Purpose (SSD) is the new, SSD-backed, general purpose EBS volume type that we recommend as the default choice for customers. General Purpose (SSD) volumes are suitable for a broad range of workloads, including small to medium sized databases, development and test environments, and boot volumes. Provisioned IOPS (SSD) volumes offer storage with consistent and low-latency performance, and are designed for I/O intensive applications such as large relational or NoSQL databases. Magnetic volumes provide the lowest cost per gigabyte of all EBS volume types. Magnetic volumes are ideal for workloads where data is accessed infrequently, and applications where the lowest storage cost is important.
+
+ 
+
+ 
+
+ 
+
+ 
+
+Q: Do you support multiple instances accessing a single volume?
+
+While you are able to attach multiple volumes to a single instance, attaching multiple instances to one volume is not supported at this time.
+
+ 
+
+Q: Will I be able to access my EBS snapshots using the regular Amazon S3 APIs?
+
+No, EBS snapshots are only available through the Amazon EC2 APIs.
+
+ 
+
+Q: Do volumes need to be un-mounted in order to take a snapshot? Does the snapshot need to complete before the volume can be used again?
+
+No, snapshots can be done in real time while the volume is attached and in use. However, snapshots only capture data that has been written to your Amazon EBS volume, which might exclude any data that has been locally cached by your application or OS. In order to ensure consistent snapshots on volumes attached to an instance, we recommend cleanly detaching the volume, issuing the snapshot command, and then reattaching the volume. For Amazon EBS volumes that serve as root devices, we recommend shutting down the machine to take a clean snapshot.
+
+ 
+
+Q: Are snapshots versioned? Can I read an older snapshot to do a point-in-time recovery?
+
+Each snapshot is given a unique identifier, and customers can create volumes based on any of their existing snapshots.
+
+ 
+
+ 
+
+Q: What charges apply when using Amazon EBS shared snapshots?
+
+If you share a snapshot, you won’t be charged when other users make a copy of your snapshot. If you make a copy of another user’s shared volume, you will be charged normal EBS rates.
+
+ 
+
+Q: Can users of my Amazon EBS shared snapshots change any of my data?
+
+Users who have permission to create volumes based on your shared snapshots will first make a copy of the snapshot into their account. Users can modify their own copies of the data, but the data on your original snapshot and any other volumes created by other users from your original snapshot will remain unmodified.
+
+ 
+
+Q: How can I discover Amazon EBS snapshots that have been shared with me?
+
+You can find snapshots that have been shared with you by selecting “Private Snapshots” from the viewing dropdown in the Snapshots section of the AWS Management Console. This section will list both snapshots you own and snapshots that have been shared with you.
+
+ 
+
+Q: How can I find what Amazon EBS snapshots are shared globally?
+
+You can find snapshots that have been shared globally by selecting “Public Snapshots” from the viewing dropdown in the Snapshots section of the AWS Management Console.
+
+Q: Do you offer encryption on Amazon EBS volumes and snapshots?
+
+Yes. EBS offers seamless encryption of data volumes and snapshots. EBS encryption better enables you to meet security and encryption compliance requirements.
+
+ 
+
+Q: How can I find a list of Amazon Public Data Sets?
+
+All information on Public Data Sets is available in our Public Data Sets Resource Center. You can also obtain a listing of Public Data Sets within the AWS Management Console by choosing “Amazon Snapshots” from the viewing dropdown in the Snapshots section.
+Q: Where can I learn more about EBS?
+
+You can visit the EBS FAQ page.
+Amazon CloudWatch
+Q: What is the minimum time interval granularity for the data that Amazon CloudWatch receives and aggregates?
+
+Metrics are received and aggregated at 1 minute intervals.
+
+Q: Which operating systems does Amazon CloudWatch support?
+
+Amazon CloudWatch receives and provides metrics for all Amazon EC2 instances and should work with any operating system currently supported by the Amazon EC2 service.
+
+Q: Will I lose the metrics data if I disable monitoring for an Amazon EC2 instance?
+
+You can retrieve metrics data for any Amazon EC2 instance up to 2 weeks from the time you started to monitor it. After 2 weeks, metrics data for an Amazon EC2 instance will not be available if monitoring was disabled for that Amazon EC2 instance. If you want to archive metrics beyond 2 weeks you can do so by calling mon-get-stats command from the command line and storing the results in Amazon S3 or Amazon SimpleDB.
+
+Q: Can I access the metrics data for a terminated Amazon EC2 instance or a deleted Elastic Load Balancer?
+
+Yes. Amazon CloudWatch stores metrics for terminated Amazon EC2 instances or deleted Elastic Load Balancers for 2 weeks.
+
+Q: Does the Amazon CloudWatch monitoring charge change depending on which type of Amazon EC2 instance I monitor?
+
+No, the Amazon CloudWatch monitoring charge does not vary by Amazon EC2 instance type.
+
+Q: Why does the graphing of the same time window look different when I view in 5 minute and 1 minute periods?
+
+If you view the same time window in a 5 minute period versus a 1 minute period, you may see that data points are displayed in different places on the graph. For the period you specify in your graph, Amazon CloudWatch will find all the available data points and calculates a single, aggregate point to represent the entire period. In the case of a 5 minute period, the single data point is placed at the beginning of the 5 minute time window. In the case of a 1 minute period, the single data point is placed at the 1 minute mark. We recommend using a 1 minute period for troubleshooting and other activities that require the most precise graphing of time periods.
+Auto Scaling
+Q: Can I scale up my Amazon EC2 capacity fast but scale it down slowly?
+
+Yes. For example, you can define a scale up condition to increase your Amazon EC2 capacity by 10% and a scale down condition to decrease it by 5%.
+
+Q: What happens if a scaling activity causes me to reach my Amazon EC2 limit of instances?
+
+Auto Scaling Service cannot scale past the Amazon EC2 limit of instances that you can run. If you need more Amazon EC2 instances, complete the Amazon EC2 instance request form.
+
+Q: What happens to my Amazon EC2 instances if I delete my Auto Scaling Group?
+
+If you have an Auto Scaling group with running instances and you choose to delete the Auto Scaling group, the instances will be terminated and the Auto Scaling group will be deleted.
+
+Elastic Load Balancing
+Q: What load balancing options does the Elastic Load Balancing service offer?
+Elastic Load Balancing offers two types of load balancers that both feature high availability, automatic scaling, and robust security. These include the Classic Load Balancer that routes traffic based on either application or network level information, and the Application Load Balancer that routes traffic based on advanced application level information that includes the content of the request.
+
+Q: When should I use the Classic Load Balancer and when should I use the Application Load Balancer?
+
+The Classic Load Balancer is ideal for simple load balancing of traffic across multiple EC2 instances, while the Application Load Balancer is ideal for applications needing advanced routing capabilities, microservices, and container-based architectures. Please visit Elastic Load Balancing for more information.
+Reserved Instances
+Q: What is a Reserved Instance?
+
+A Reserved Instance (RI) is an EC2 offering that provides you with a significant discount on EC2 usage when you commit to a one-year or three-year term.
+
+Q: What are the differences between Standard RIs and Convertible RIs?
+
+Standard RIs offer a significant discount on EC2 instance usage when you commit to a particular instance family. Convertible RIs offer you the option to change your instance configuration during the term, and still receive a discount on your EC2 usage. For more information on Convertible RIs, please click here.
+
+Q: Do RIs provide a capacity reservation?
+
+Yes, when a Standard or Convertible RI is scoped to a specific Availability Zone (AZ), instance capacity matching the exact RI configuration is reserved for your use (these are referred to as “zonal RIs”). Zonal RIs give you additional confidence in your ability to launch instances when you need them.
+
+You can also choose to forego the capacity reservation and purchase Standard or Convertible RIs that are scoped to a region (referred to as “regional RIs”). Regional RIs automatically apply the discount to usage across Availability Zones and instance sizes in a region, making it easier for you to take advantage of the RI’s discounted rate.
+Q: When should I purchase a zonal RI?
+
+If you want to take advantage of the capacity reservation, then you should buy an RI in a specific Availability Zone.
+
+Q: When should I purchase a regional RI?
+
+If you do not require the capacity reservation, then you should buy a regional RI. Regional RIs provide AZ and instance size flexibility, which offers broader applicability of the RI’s discounted rate.
+
+Q: What are Availability Zone and instance size flexibility?
+
+Availability Zone and instance size flexibility make it easier for you to take advantage of your regional RI’s discounted rate. Availability Zone flexibility applies your RI’s discounted rate to usage in any Availability Zone in a region, while instance size flexibility applies your RI’s discounted rate to usage of any size within an instance family. Let’s say you own an m4.2xlarge Linux/Unix regional RI with default tenancy in US East (N.Virginia). Then this RI’s discounted rate can automatically apply to two m4.xlarge instances in us-east-1a or four m4.large instances in us-east-1b.
+Q: What types of RIs provide instance size flexibility?
+
+Linux/Unix regional RIs with the default tenancy provide instance size flexibility. Instance size flexibility is not available on RIs of other platforms such as Windows, Windows with SQL Standard, Windows with SQL Server Enterprise, Windows with SQL Server Web, RHEL, and SLES.
+
+Q: Do I need to take any action to take advantage of Availability Zone and instance size flexibility?
+
+Regional RIs do not require any action to take advantage of Availability Zone and instance size flexibility.
+
+Q: I own zonal RIs how do I assign them to a region?
+
+You can assign your Standard zonal RIs to a region by modifying the scope of the RI from a specific Availability Zone to a region from the EC2 management console or by using the ModifyReservedInstances API. 
+
+Q: How do I purchase an RI?
+
+To get started, you can purchase an RI from the EC2 Management Console or by using the AWS CLI. Simply specify the instance type, platform, tenancy, term, payment option, and region or Availability Zone.
+
+Q: Can I purchase an RI for a running instance?
+
+Yes, AWS will automatically apply an RI’s discounted rate to any applicable instance usage from the time of purchase. Visit the Getting Started page to learn more.
+
+Q: Can I control which instances are billed at the discounted rate?
+
+No. AWS automatically optimizes which instances are charged at the discounted rate to ensure you always pay the lowest amount. For information about hourly billing, and how it applies to RIs, see Billing Benefits and Payment Options.
+
+Q: How does instance size flexibility work?
+
+EC2 uses the scale shown below, to compare different sizes within an instance family. In the case of instance size flexibility on RIs, this scale is used to apply the discounted rate of RIs to the normalized usage of the instance family. For example, if you have an m4.2xlarge RI that is scoped to a region, then your discounted rate could apply towards the usage of 1 m4.2xlarge or 2 m4.xlarge instances.
+
+Q: Can I change my RI during its term?
+
+Yes, you can modify the Availability Zone of the RI, change the scope of the RI from Availability Zone to region (and vice-versa), change the network platform from EC2-VPC to EC2-Classic (and vice versa) or modify instance sizes within the same instance family (on the Linux/Unix platform).
+
+Q: Can I change the instance type of my RI during its term?
+
+Yes, Convertible RIs offer you the option to change the instance type, operating system, tenancy or payment option of your RI during its term. Please refer to the Convertible RI section of the FAQ for additional information.
+
+Q: What are the different payment options for RIs?
+
+You can choose from three payment options when you purchase an RI. With the All Upfront option, you pay for the entire RI term with one upfront payment. With the Partial Upfront option, you make a low upfront payment and are then charged a discounted hourly rate for the instance for the duration of the RI term. The No Upfront option does not require any upfront payment and provides a discounted hourly rate for the duration of the term.
+
+Q: When are RIs activated?
+
+The billing discount and capacity reservation (if applicable) is activated once your payment has successfully been authorized. You can view the status (pending | active | retired) of your RIs on the "Reserved Instances" page of the Amazon EC2 Console.
+
+Q: Do RIs apply to Spot instances or instances running on a Dedicated Host?
+
+No, RIs do not apply to Spot instances or instances running on Dedicated Hosts. To lower the cost of using Dedicated Hosts, purchase Dedicated Host Reservations.
+
+Q: How do RIs work with Consolidated Billing?
+
+Our system automatically optimizes which instances are charged at the discounted rate to ensure that the consolidated accounts always pay the lowest amount. If you own RIs that apply to an Availability Zone, then only the account which owns the RI will receive the capacity reservation. However, the discount will automatically apply to usage in any account across your consolidated billing family.
+
+Q: Can I get a discount on RI purchases?
+
+Yes, EC2 provides tiered discounts on RI purchases. These discounts are determined based on the total list value (non-discounted price) for the active RIs you have per region. Your total list value is the sum of all expected payments for an RI within the term, including both the upfront and recurring hourly payments. The tier ranges and corresponding discounts are shown alongside.
+
+Tier Range of List Value
+
+Discount on Upfront
+
+Discount on Hourly
+
+Less than $500k
+
+0%
+
+0%
+
+$500k-$4M
+
+5%
+
+5%
+
+$4M-$10M	10%	10%
+More than $10M	Call Us	 
+Q: Can you help me understand how volume discounts are applied to my RI purchases?
+
+Sure. Let's assume that you currently have $400,000 worth of active RIs in the US-east-1 region. Now, if you purchase RIs worth $150,000 in the same region, then the first $100,000 of this purchase would not receive a discount. However, the remaining $50,000 of this purchase would be discounted by 5 percent, so you would only be charged $47,500 for this portion of the purchase over the term based on your payment option.
+
+To learn more, please visit the Understanding Reserved Instance Discount Pricing Tier portion of the Amazon EC2 User Guide.
+
+Q: How do I calculate the list value of an RI?
+
+Here is a sample list value calculation for three-year Partial Upfront Reserved Instances:
+
+
+Q: How are volume discounts calculated if I use Consolidated Billing?
+
+If you leverage Consolidated Billing, AWS will use the aggregate total list price of active RIs across all of your consolidated accounts to determine which volume discount tier to apply. Volume discount tiers are determined at the time of purchase, so you should activate Consolidated Billing prior to purchasing RIs to ensure that you benefit from the largest possible volume discount that your consolidated accounts are eligible to receive.
+
+Q: Do Convertible RIs qualify for Volume Discounts?
+
+No, however the value of each Convertible RI that you purchase contributes to your volume discount tier standing.
+
+Q: How do I determine which volume discount tier applies to me?
+
+To determine your current volume discount tier, please consult the Understanding Reserved Instance Discount Pricing Tiers portion of the Amazon EC2 User Guide.
+
+Q: Will the cost of my RIs change, if my future volume qualifies me for other discount tiers?
+
+No. Volume discounts are determined at the time of purchase, therefore the cost of your RIs will continue to remain the same as you qualify for other discount tiers. Any new purchase will be discounted according to your eligible volume discount tier at the time of purchase.
+
+Q: Do I need to take any action at the time of purchase to receive volume discounts?
+
+No, you will automatically receive volume discounts when you use the existing PurchaseReservedInstance API or EC2 Management Console interface to purchase RIs. If you purchase more than $10M worth of RIs contact us about receiving discounts beyond those that are automatically provided.
+
+Convertible Reserved Instances
+Q: What is a Convertible Reserved Instance?
+A Convertible Reserved Instance is a type of Reserved Instance with attributes that can be changed during the term.
+
+Q: When should I purchase a Convertible Reserved Instance instead of a Standard Reserved Instance?
+The Convertible Reserved Instance is useful for customers who can commit to using EC2 instances for a three-year term in exchange for a significant discount on their EC2 usage, are uncertain about their instance needs in the future, or want to benefit from changes in price.
+
+Q: Can I exchange my Convertible Reserved Instance to benefit from a Convertible Reserved Instance matching a different instance type, operating system, tenancy, or payment option? 
+Yes, you can select a new instance type, operating system, tenancy, or payment option when you exchange your Convertible Reserved Instances.
+
+Q: Can I transfer a Convertible or Standard Reserved Instance from one region to another?
+No, a Reserved Instance is associated with a specific region, which is fixed for the duration of the reservation's term.
+
+Q: How do I change the configuration of a Convertible Reserved Instance?
+You can change the configuration of your Convertible Reserved Instance using the EC2 Management Console or the GetReservedInstancesExchangeQuote API.
+
+Q: Do I need to pay a fee when I exchange my Convertible Reserved Instances?
+No, you do not pay a fee when you exchange your Reserved Instances. However may need to pay a one-time true-up charge that accounts for differences in pricing between the Convertible Reserved Instances that you have and the Convertible Reserved Instances that you want.
+
+Q: Does the end date change when I exchange a Convertible Reserved Instance?
+No, the end date of the original Reserved Instance is transferred to the Reserved Instances you receive after the exchange.
+
+Q: How do Convertible Reserved Instance exchanges work?
+When you exchange one Convertible Reserved Instance for another, EC2 ensures that the total value of the Convertible Reserved Instances is maintained through a conversion. So, if you are converting your Reserved Instance with a total value of $1000 for another Reserved Instance, you will receive a quantity of Convertible Reserved Instances with a value that’s equal to or greater than $1000. You cannot convert your Convertible Reserved Instance for Convertible Reserved Instance(s) of a lesser total value.
+
+Q: Can you define total value? 
+The total value is the sum of all expected payments that you’d make during the term for the Reserved Instance.
+
+Q: Can you walk me through how the true-up cost is calculated for a conversion between two All Upfront Convertible Reserved Instances?
+Sure, let’s say you purchased an All Upfront Convertible Reserved Instance for $1000 upfront, and halfway through the term you decide to change the attributes of the Reserved Instance. Since you’re halfway through the Reserved Instance term, you have $500 left of prorated value remaining on the Reserved Instance. The All Upfront Convertible Reserved Instance that you want to convert into costs $1,200 upfront today. Since you only have half of the term left on your existing Convertible Reserved Instance, there is $600 of value remaining on the desired new Convertible Reserved Instance. The true-up charge that you’ll pay will be the difference in upfront value between original and desired Convertible Reserved Instances, or $100 ($600 - $500).
+
+Q: Can you walk me through a conversion between No Upfront Convertible Reserved Instances?
+Unlike conversions between Convertible Reserved Instances with an upfront value, since you’re converting between Reserved Instances without an upfront cost, there will not be a true-up charge. However, the amount you pay on an hourly basis before the exchange will need to be greater than or equal to the amount you pay on a total hourly basis after the exchange.
+
+For example, let’s say you purchased one No Upfront Convertible Reserved Instance (A) with a $0.10/hr rate, and you decide to exchange Convertible Reserved Instance A for another Reserved Instance (B) that costs $0.06/hr. When you convert, you will receive two Reserved Instances of B because the amount that you pay on an hourly basis must be greater than or equal to the amount you’re paying for A on an hourly basis.
+
+Q: Can I customize the number of instances that I receive as a result of a Convertible Reserved Instance exchange?
+No, EC2 uses the value of the Convertible Reserved Instances you’re trading in to calculate the minimal number of Convertible Reserved Instances you’ll receive while ensuring the result of the exchange gives you Convertible Reserved Instances of equal or greater value.
+
+Q: Are there exchange limits for Convertible Reserved Instances?
+No, there are no exchange limits for Convertible Reserved Instances.
+
+Q: Do I have the freedom to choose any instance type when I exchange my Convertible Reserved Instances?
+No, you can only exchange into Convertible Reserved Instances that are currently offered by AWS.
+
+Q: Can I upgrade the payment option associated with my Convertible Reserved Instance?
+Yes, you can upgrade the payment option associated with your Reserved Instance. For example, you can exchange your No Upfront Reserved Instances for Partial or All Upfront Reserved Instances to benefit from better pricing. You cannot change the payment option from All Upfront to No Upfront, and cannot change from Partial Upfront to No Upfront.
+
+Q: Do Convertible Reserved Instances allow me to benefit from price reductions when they happen?
+Yes, you can exchange your Reserved Instances to benefit from lower pricing. For example, if the price of new Convertible Reserved Instances reduces by 10%, you can exchange your Convertible Reserved Instances and benefit from the 10% reduction in price.  
+
+Reserved Instance Marketplace
+Q. What is the Reserved Instance Marketplace?
+
+The Reserved Instance Marketplace is an online marketplace that provides AWS customers the flexibility to sell their Amazon Elastic Compute Cloud (Amazon EC2) Reserved Instances to other businesses and organizations. Customers can also browse the Reserved Instance Marketplace to find an even wider selection of Reserved Instance term lengths and pricing options sold by other AWS customers.
+
+Q. When can I list a Reserved Instance on the Reserved Instance Marketplace?
+
+You can list a Reserved Instance when:
+
+You've registered as a seller in the Reserved Instance Marketplace.
+You've paid for your Reserved Instance.
+You've owned the Reserved Instance for longer than 30 days.
+Q. How will I register as a seller for the Reserved Instance Marketplace?
+
+To register for the Reserved Instance Marketplace, you can enter the registration workflow by selling a Reserved Instance from the EC2 Management Console or setting up your profile from the "Account Settings" page on the AWS portal. No matter the route, you will need to complete the following steps:
+
+Start by reviewing the overview of the registration process.
+Log in to your AWS Account.
+Enter in the bank account into which you want us to disburse funds. Once you select "Continue", we will set that bank account as the default disbursement option.
+In the confirmation screen, choose "Continue to Console to Start Listing".
+If you exceed $20,000 in sales of Reserved Instances, or plan to sell 50 or more Reserved Instances, you will need to provide tax information before you can list your Reserved Instances. Choose "Continue with Tax Interview". During the tax interview pipeline, you will be prompted to enter your company name, contact name, address, and Tax Identification Number using the TIMS workflow. 
+
+Additionally, if you plan to sell Reserved Instances worth more than $50,000 per year you will also need to file a limit increase.
+
+Q. How will I know when I can start selling on the Reserved Instance Marketplace?
+
+You can start selling on the Reserved Instance Marketplace after you have added a bank account through the registration pipeline. Once activation is complete, you will receive a confirmation email. However, it is important to note that you will not be able to receive disbursements until we are able to receive verification from your bank, which may take up to two weeks, depending on the bank you use.
+
+Q. How do I list a Reserved Instance for sale?
+
+To list a Reserved Instance, simply complete these steps in the Amazon EC2 Console:
+
+Select the Reserved Instances you wish to sell, and choose "Sell Reserved Instances". If you have not completed the registration process, you will be prompted to register using the registration pipeline.
+For each Reserved Instance type, set the number of instances you’d like to sell, and the price for the one-time fee you would like to set. Note that you can set the one-time price to different amounts depending on the amount of time remaining so that you don’t have to keep adjusting your one-time price if your Reserved Instance doesn’t sell quickly. By default you just need to set the current price and we will automatically decrease the one-time price by the same increment each month.
+Once you have configured your listing, a final confirmation screen will appear. Choose "Sell Reserved Instance".
+Q. Which Reserved Instances can I list for sale?
+
+You can list any Reserved Instances that have been active for at least 30 days, and for which we have received payment. Typically, this means that you can list your reservations once they are in the active state. It is important to note that if you are an invoice customer, your Reserved Instance can be in the active state prior to AWS receiving payment. In this case, your Reserved Instance will not be listed until we have received your payment.
+
+Q. How are listed Reserved Instances displayed to buyers?
+
+Reserved Instances (both third-party and those offered by AWS) that have been listed on the Reserved Instance Marketplace can be viewed in the "Reserved Instances" section of the Amazon EC2 Console. You can also use the DescribeReservedInstancesListings API call.
+
+The listed Reserved Instances are grouped based on the type, term remaining, upfront price, and hourly price. This makes it easier for buyers to find the right Reserved Instances to purchase.
+
+Q. How much of my Reserved Instance term can I list?
+
+You can sell a Reserved Instance for the term remaining, rounded down to the nearest month. For example, if you had 9 months and 13 days remaining, you will list it for sale as a 9-month-term Reserved Instance.
+
+Q. Can I remove my Reserved Instance after I’ve listed it for sale?
+
+Yes, you can remove your Reserved Instance listings at any point until a sale is pending (meaning a buyer has bought your Reserved Instance and confirmation of payment is pending).
+
+Q. Which pricing dimensions can I set for the Reserved Instances I want to list?
+
+Using the Reserved Instance Marketplace, you can set an upfront price you’d be willing to accept. You cannot set the hourly price (which will remain the same as was set on the original Reserved Instance), and you will not receive any funds collected from payments associated with the hourly prices.
+
+Q. Can I still use my reservation while it is listed on the Reserved Instance Marketplace?
+
+Yes, you will continue to receive the capacity and billing benefit of your reservation until it is sold. Once sold, any running instance that was being charged at the discounted rate will be charged at the On-Demand rate until and unless you purchase a new reservation, or terminate the instance.
+
+Q. Can I resell a Reserved Instance that I purchased from the Reserved Instance Marketplace?
+
+Yes, you can resell Reserved Instances purchased from the Reserved Instance Marketplace just like any other Reserved Instance.
+
+Q. Are there any restrictions when selling Reserved Instances?
+
+Yes, you must have a US bank account to sell Reserved Instances in the Reserved Instance Marketplace. Support for non-US bank accounts will be coming soon. Also, you may not sell Reserved Instances in the US GovCloud region.
+
+Q. Can I sell Reserved Instances purchased from the public volume pricing tiers?
+
+No, this capability is not yet available.
+
+Q. Is there a charge for selling Reserved Instances on the Reserved Instance Marketplace?
+
+Yes, AWS charges a service fee of 12% of the total upfront price of each Reserved Instance you sell in the Reserved Instance Marketplace.
+
+Q. Can AWS sell subsets of my listed Reserved Instances?
+
+Yes, AWS may potentially sell a subset of the quantity of Reserved Instances that you have listed. For example, if you list 100 Reserved instances, we may only have a buyer interested in purchasing 50 of them. We will sell those 50 instances and continue to list your remaining 50 Reserved Instances until and unless you decide not to list them any longer.
+
+Q. How do buyers pay for Reserved Instances that they've purchased?
+
+Payment for completed Reserved Instance sales are done via ACH wire transfers to a US bank account.
+
+Q. When will I receive my money?
+
+Once AWS has received funds from the customer that has bought your reservation, we will disburse funds via wire transfer to the bank account you specified when you registered for the Reserved Instance Marketplace.
+
+Then, we will send you an email notification letting you know that we’ve wired you the funds. Typically, funds will appear in your account within 3-5 days of when your Reserved Instance was been sold.
+
+Q. If I sell my Reserved Instance in the Reserved Instance Marketplace, will I get refunded for the Premium Support I was charged too?
+
+No, you will not receive a pro-rated refund for the upfront portion of the AWS Premium Support Fee.
+
+Q. Will I be notified about Reserved Instance Marketplace activities?
+
+Yes, you will receive a single email once a day that details your Reserved Instance Marketplace activity whenever you create or cancel Reserved Instance listings, buyers purchase your listings, or AWS disburses funds to your bank account.
+
+Q. What information is exchanged between the buyer and seller to help with the transaction tax calculation?
+
+The buyer’s city, state, zip+4, and country information will be provided to the seller via a disbursement report. This information will enable sellers to calculate any necessary transaction taxes they need to remit to the government (e.g., sales tax, value-added tax, etc.). The legal entity name of the seller will also be provided on the purchase invoice.
+
+Q. Are there any restrictions on the customers when purchasing third-party Reserved Instances?
+
+Yes, you cannot purchase your own listed Reserved Instances, including those in any of your linked accounts (via Consolidated Billing).
+
+Q. Do I have to pay for Premium Support when purchasing Reserved Instances from the Reserved Instance Marketplace?
+
+Yes, if you are a Premium Support customer, you will be charged for Premium Support when you purchase a Reserved Instance through the Reserved Instance Marketplace.
+Spot Instances
+Q. What is a Spot Instance?
+
+Spot instances are a new way to purchase and consume Amazon EC2 Instances. They allow customers to bid on unused EC2 capacity and run those instances for as long as their bid exceeds the current Spot Price. The Spot Price changes periodically based on supply and demand, and customers whose bids meet or exceed it gain access to the available Spot instances. Spot instances are complementary to On-Demand instances and Reserved Instances, providing another option for obtaining compute capacity.
+
+Q. How is a Spot instance different than an On-Demand instance or Reserved Instance?
+
+Spot instances provide the ability for customers to purchase compute capacity with no upfront commitment, at hourly rates usually lower than the On-Demand rate. Spot instances allow you to specify the maximum hourly price that you are willing to pay to run a particular instance type. Amazon EC2 sets a Spot Price for each instance type in each availability zone, which is the hourly price all customers will pay to run a Spot instance for that given period. The Spot Price fluctuates based on supply and demand for instances, but customers will never pay more than the maximum price they have specified. If the Spot Price moves higher than a customer’s maximum price, the customer’s instance will be shut down by Amazon EC2. Other than those differences, Spot instances perform exactly the same as On-Demand or Reserved Instances. See here for more details on Spot instances.
+
+Q. How do I purchase and start up a Spot instance?
+
+Spot instances can be requested using the EC2 Management Console or Amazon EC2 APIs. To start with the EC2 Management Console:
+
+Log in to the EC2 Management Console.
+Choose "Spot Requests" in the left navigation pane.
+Choose "Request Spot Instances".
+Complete the Launch Instance Wizard process, choosing an AMI, region and instance size and type. 
+Enter the number of Spot instances you would like to request, your maximum price, and whether the request is persistent or not. 
+After choosing your key pair and security group(s), you are ready to submit your Spot instance request.
+For detail on how to request Spot instances through the Amazon EC2 API, see the Amazon EC2 API Reference.
+
+For a more detailed walk-through of using Spot instances and more information on how to get the most out of Spot instances, see Introduction to Spot Instances.
+
+Q. How many Spot instances can I request?
+
+You are limited to requesting Spot instances per your dynamic Spot limit for each region. Note that not all instance types are available on Spot, and new AWS accounts might start with a lower limit. To learn more about Spot instance limits, please refer to the Amazon EC2 User Guide.
+
+If you would like a higher limit, complete the Amazon EC2 instance request form with your use case and your instance increase will be considered. Limit increases are tied to the region they were requested for.
+ 
+
+ 
+
+Q. How can I determine the status of my Spot request?
+
+You can determine the status of your Spot request in the instance provisioning lifecycle by inspecting its Spot Bid Status code and message. By reviewing Spot bid statuses, you can see why your Spot requests state has or has not changed and you can learn how to optimize your Spot requests to get them fulfilled. You can access Spot Bid Status information on the Spot Instance page of the EC2 console of the AWS Management Console, as well as through the DescribeSpotInstanceRequests API action and the ec2-describe-spot-instance-requests CLI command. For more information, please visit the Amazon EC2 Developer guide.
+
+ 
+
+Q. Are Spot instances available for all instance families and sizes and in all regions?
+
+Instance types supported in each region are listed here. Spot instance APIs are available in all regions except the US GovCloud region.
+
+ 
+
+Q. Which operating systems are available as Spot instances?
+
+Linux/UNIX and Windows Server are available. Windows Server with SQL Server is not currently available.
+
+ 
+
+Q. Are there any features or services of Amazon Web Services that are not supported for use with Spot instances?
+
+Amazon DevPay is not supported for use with Spot instances.
+
+ 
+
+Q. Can I use a Spot instance with a paid AMI for third-party software (such as IBM’s software packages)?
+
+Not at this time.
+
+ 
+
+Q. Will I be charged if my Spot instance is terminated by Amazon EC2 before the hour is up?
+
+No. If the Spot instance is terminated by Amazon EC2, you will not be charged for a partial hour of usage. However, if you terminate the instance yourself, you will be charged for any hour in which the instance ran.
+
+ 
+
+Q. How often should I expect the Spot price to change?
+
+Amazon EC2 will change the Spot price periodically as new requests are received and as available Spot capacity changes (e.g., due to instance terminations). While the Spot price may change anytime, in general it will change once per hour and in many cases less frequently. We publish the current Spot price and historical prices for Spot instances through the API, and they can also be viewed using the AWS Management Console. This can help you assess the levels and timing of fluctuations in the Spot price over time.
+
+ 
+
+Q. Will all Spot instances started at the same time be charged the same price?
+
+Yes.
+
+ 
+
+Q. Will the price I’m charged for a running Spot instance change during its instance-hour as the Spot price changes?
+
+No. The price per instance-hour for a Spot instance is set at the beginning of each instance-hour for the entire hour. Any changes to the Spot price will not be reflected until the next instance-hour begins.
+
+ 
+
+Q. Where can I see my usage history for Spot instances and see how much I was billed?
+
+The AWS Management Console makes a detailed billing report available which shows Spot instance start and termination times for all instances. Customers can check the billing report against historical Spot prices via the API to verify that the Spot price they were billed is correct.
+
+Q. Why do Spot prices differ across accounts for the same instance type, operating system, and Availability Zone?
+
+To ensure that resources are distributed across Availability Zones for a region, Availability Zones are independently mapped to identifiers for each account. For example, your Availability Zone us-east-1a might not be the same location as us-east-1a for another account. So, Spot prices for the same Availability Zone identifier may be different in different accounts. Note that there's no way for you to coordinate Availability Zones between accounts.
+
+Q. What is a Spot fleet?
+
+A Spot fleet allows you to automatically bid on and manage multiple Spot instances that provide the lowest price per unit of capacity for your cluster or application, like a batch processing job, a Hadoop workflow, or an HPC grid computing job. You can include the instance types that your application can use, and define a target capacity based on your application needs (in units including instances, vCPUs, memory, storage, or network throughput). Spot fleets enable you to launch and maintain the target capacity, and to automatically request resources to replace any that are disrupted or manually terminated. Learn more about Spot fleets.
+Q. Is there any additional charge for making Spot fleet requests?
+
+No, there is no additional charge for Spot fleet requests.
+
+Q. What limits apply to a Spot fleet request?
+
+Visit the Spot Fleet Limits section of the Amazon EC2 User Guide to learn about the limits that apply to your Spot fleet request.
+Q. What happens if my Spot fleet request tries to launch Spot instances but exceeds my regional Spot request limit?
+
+If your Spot fleet request exceeds your regional Spot instance request limit, individual Spot instance requests will fail with a Spot request limit exceeded bid status. Your Spot fleet request’s history will show any Spot request limit errors that the fleet request received. Visit the Monitoring Your Spot Fleet section of the Amazon EC2 User Guide to learn how to describe your Spot fleet request's history.
+Q. What happens if my Spot fleet request bid price exceeds my Spot bid price limit for one of the instance types I am requesting?
+
+If your Spot fleet request bid price exceeds your Spot bid price limits, we will submit Spot requests for that instance type at your current Spot bid price limit. Your Spot fleet request’s history will show if any of your fleet’s instances were affected by your Spot bid price limit. Visit the Monitoring Your Spot Fleet section of the Amazon EC2 User Guide to learn how to describe your Spot fleet request's history.
+Q. Are Spot fleet requests guaranteed to be fulfilled?
+
+No. Spot fleet requests allow you to place multiple Spot instance bids simultaneously, and are subject to the same availability and prices as a single Spot instance request. For example, if no resources are available at your Spot fleet request bid price, we may be unable to fulfill your request partially or in full.
+Q. Can I submit a multi-Availability Zone fleet request?
+
+Yes, visit the Spot Fleet Examples section of the Amazon EC2 User Guide to learn how to submit a multi-Availability Zone Spot fleet request.
+Q. Can I submit a multi-region Spot fleet request? 
+
+No, we do not support multi-region fleet requests.
+
+Q. How does Spot fleet allocate resources across the various Spot instance pools specified in the launch specifications?
+
+The RequestSpotFleet API provides two allocation strategies: lowestPrice and diversified. The lowestPrice strategy allows you to provision your Spot fleet resources in instance pools that provide the lowest price per unit of capacity at the time of the request. The diversified strategy allows you to provision your Spot fleet resources across multiple Spot instance pools. This enables you to maintain your fleet’s target capacity and increase your application’s availability as Spot capacity fluctuates.
+
+Running your application’s resources across diverse Spot instance pools also allows you to further reduce your fleet’s operating costs over time. Visit the Amazon EC2 User Guide to learn more.
+
+Q. Can I tag a Spot fleet request?
+
+We currently do not support tagging Spot fleet requests.
+
+Q. How can I see which Spot fleet owns my Spot instances?
+
+You can identify the Spot instances associated with your Spot fleet by describing your fleet request. Fleet requests are available for 48 hours after all its Spot instances have been terminated. See the Amazon EC2 User Guide to learn how to describe your Spot fleet request.
+Q. Can I modify my Spot fleet request?
+
+Currently, you can only modify the target capacity of your Spot fleet request. You may need to cancel the request and submit a new one to change other request configuration parameters.
+
+Q. Can I specify a different AMI for each instance type that I want to use?
+
+Yes, simply specify the AMI you’d like to use in each launch specification you provide in your Spot fleet request.
+Q. Can I use Spot fleet with Elastic Load Balancing, Auto Scaling, or Elastic MapReduce?
+
+You can use Spot fleet with Auto Scaling. You cannot use Elastic Load Balancing or Elastic MapReduce to trigger Spot fleet requests.
+Q. Does a Spot fleet request terminate Spot instances when they are no longer running in the lowest priced Spot pools and relaunch them in the lowest priced pools?
+
+No, Spot fleet requests do not automatically terminate and re-launch instances while they are running. However, if you terminate a Spot instance, Spot fleet will replenish it with a new Spot instance in the new lowest priced pool.
+Q: Are Spot blocks (Fixed Duration Spot instances) ever interrupted?
+Spot blocks are designed not to be interrupted and will run continuously for the duration you select, independent of Spot market price. In rare situations, Spot blocks may be interrupted due to AWS capacity needs. In these cases, we will provide a two-minute warning before we terminate your instance (termination notice), and you will not be charged for the affected instance(s).
+
+ 
+
+ 
+
+ 
+
+
+Micro Instances
+Q. How much compute power do Micro instances provide?
+
+Micro instances provide a small amount of consistent CPU resources and allow you to burst CPU capacity up to 2 ECUs when additional cycles are available. They are well suited for lower throughput applications and web sites that consume significant compute cycles periodically but very little CPU at other times for background processes, daemons, etc. Learn more about use of this instance type.
+
+Q. How does a Micro instance compare in compute power to a Standard Small instance?
+
+At steady state, Micro instances receive a fraction of the compute resources that Small instances do. Therefore, if your application has compute-intensive or steady state needs we recommend using a Small instance (or larger, depending on your needs). However, Micro instances can periodically burst up to 2 ECUs (for short periods of time). This is double the number of ECUs available from a Standard Small instance. Therefore, if you have a relatively low throughput application or web site with an occasional need to consume significant compute cycles, we recommend using Micro instances.
+
+Q. How can I tell if an application needs more CPU resources than a Micro instance is providing?
+
+The CloudWatch metric for CPU utilization will report 100% utilization if the instance bursts so much that it exceeds its available CPU resources during that CloudWatch monitored minute. CloudWatch reporting 100% CPU utilization is your signal that you should consider scaling – manually or via Auto Scaling – up to a larger instance type or scale out to multiple Micro instances.
+
+Q. Are all features of Amazon EC2 available for Micro instances?
+
+Currently Amazon DevPay is not available for Micro instances.
+Compute-Optimized Instances
+Q. When should I use Compute-optimized instances?
+Compute-optimized instances are designed for applications that benefit from high compute power. These applications include high performance front-end fleets, web-servers, batch processing, distributed analytics, high performance science and engineering applications, ad serving, MMO gaming, video-encoding, and distributed analytics.
+Q. Can I launch C4 instances as Amazon EBS-optimized instances?
+Each C4 instance type is EBS-optimized by default. C4 instances 500 Mbps to 4,000 Mbps to EBS above and beyond the general-purpose network throughput provided to the instance. Since this feature is always enabled on C4 instances, launching a C4 instance explicitly as EBS-optimized will not affect the instance's behavior.
+
+Q. How can I use the processor state control feature available on the c4.8xlarge instance?
+The c4.8xlarge instance type provides the ability for an operating system to control processor C-states and P-states. This feature is currently available only on Linux instances. You may want to change C-state or P-state settings to increase processor performance consistency, reduce latency, or tune your instance for a specific workload. By default, Amazon Linux provides the highest-performance configuration that is optimal for most customer workloads; however, if your application would benefit from lower latency at the cost of higher single- or dual-core frequencies, or from lower-frequency sustained performance as opposed to bursty Turbo Boost frequencies, then you should consider experimenting with the C-state or P-state configuration options that are available to these instances. For additional information on this feature, see the Amazon EC2 User Guide section on Processor State Control.
+
+ 
+
+Accelerated Computing Instances
+Q: What are Accelerated Computing Instances?
+
+Accelerated Computing Instance family is a family of instances which use hardware accelerators, or co-processors, to perform some functions, such as floating point number calculation and graphics processing, more efficiently than is possible in software running on CPUs. Amazon EC2 provides two types of Accelerated Computing Instances – GPU Compute Instances for general-purpose computing and GPU Graphics Instances for graphics intensive applications.
+
+Q. When should I use GPU Graphics and Compute instances?
+
+GPU instances work best for applications with massive parallelism, for example workloads using thousands of threads. Graphics processing is an example with huge computational requirements, where each of the tasks is relatively small, the set of operations performed form a pipeline, and the throughput of this pipeline is more important than the latency of the individual operations. To be able build applications that exploit this level of parallelism one needs GPU device specific knowledge by understanding how to program against various graphics APIs (DirectX, OpenGL) or GPU compute programming models (CUDA, OpenCL).
+
+Q. How are G2 instances different from CG1 instances?
+
+CG1 instances use NVIDIA Tesla GPUs and are designed for general purpose GPU computing using the CUDA or OpenCL programming models. CG1 instances provide customers with high bandwidth 10 Gbps networking, double precision floating-point capabilities, and error-correcting code (ECC) memory, making them ideal for High Performance Computing (HPC) applications. G2 instances use NVIDIA GRID GPUs and provide a cost-effective, high-performance platform for graphics applications using DirectX or OpenGL. NVIDIA GRID GPUs also support NVIDIA’s fast capture and encode APIs. Example applications include video creation services, 3D visualizations, streaming graphics-intensive applications, and other server-side workloads requiring massive parallel processing power. In addition, Graphics instances can also be used for general purpose computing using CUDA or OpenCL, but are not recommended for network-intensive HPC applications.
+
+Q. How are P2 instances different from G2 instances?
+
+P2 instances use NVIDIA Tesla K80 GPUs and are designed for general purpose GPU computing using the CUDA or OpenCL programming models. P2 instances provide customers with high bandwidth 20Gbps networking, powerful single and double precision floating-point capabilities, and error-correcting code (ECC) memory, making them ideal for deep learning, high performance databases, computational fluid dynamics, computational finance, seismic analysis, molecular modeling, genomics, rendering, and other server-side GPU compute workloads. G2 instances use NVIDIA GRID GPUs and provide a cost-effective, high-performance platform for graphics applications using DirectX or OpenGL. NVIDIA GRID GPUs also support NVIDIA’s fast capture and encode APIs. Example applications include video creation services, 3D visualizations, streaming graphics-intensive applications, and other server-side graphics workloads.
+
+Q. What APIs and programming models are supported by GPU Graphics and Compute instances?
+
+With the initial driver release, G2 instances support DirectX 9, 10, and 11, OpenGL 4.3, CUDA 5.5, OpenCL 1.1, and DirectCompute. With the latest driver release, CG1 instances support CUDA 5.5, OpenCL 1.1, and DirectCompute. With the latest driver release, P2 instances support CUDA 7.5 and OpenCL 1.2. 
+Q. Where do I get NVIDIA drivers for CG1, G2 and P2 instances?
+
+There are two methods by which NVIDIA drivers may be obtained. NVIDIA has listings on the AWS Marketplace which offer Amazon Linux AMIs and Windows Server AMIs with the NVIDIA drivers pre-installed. You may also launch 64 bit, HVM AMIs and install the drivers yourself. You must visit the NVIDIA drivers website and search for the NVIDIA Tesla K80 for the P2, NVIDIA GRID K520 for the G2, and the Tesla M2050 for the CG1.
+
+Q. Which AMIs can I use with P2 and G2 instances?
+
+You can currently use Windows Server, SUSE Enterprise Linux, Ubuntu, and Amazon Linux AMIs on P2 and G2 instances. If you want to launch AMIs with operating systems not listed here, contact AWS Customer Support with your request or reach out through EC2 Forums.
+
+Q. Where do I get the NVIDIA GRID SDK?
+
+The NVIDIA GRID SDK is available from NVIDIA directly. Please visit http://www.nvidia.com/object/cloud-get-started.html for information about obtaining the full SDK. NVENC, the frame capture and encoding portion of the GRID SDK, is available on the NVIDIA Developers Zone at https://developer.nvidia.com/nvidia-video-codec-sdk.
+
+Q. Does the use of G2 instances require third-party licenses?
+
+Aside from the NVIDIA drivers and GRID SDK, the use of G2 instances does not necessarily require any third-party licenses. However, you are responsible for determining whether your content or technology used on G2 instances requires any additional licensing. For example, if you are streaming content you may need licenses for some or all of that content. If you are using third-party technology such as operating systems, audio and/or video encoders, and decoders from Microsoft, Thomson, Fraunhofer IIS, Sisvel S.p.A., MPEG-LA, and Coding Technologies, please consult these providers to determine if a license is required. For example, if you leverage the on-board h.264 video encoder on the NVIDIA GRID GPU you should reach out to MPEG-LA for guidance, and if you use mp3 technology you should contact Thomson for guidance..
+
+Q. Why am I unable to see the GPU when using Microsoft Remote Desktop?
+
+When using Remote Desktop, GPUs using the WDDM driver model are replaced with a non-accelerated Remote Desktop display driver. In order to access your GPU hardware, you need to utilize a different remote access tool, such as VNC.
+Cluster Instances
+Q. What is a Cluster Compute Instance?
+
+Cluster Compute Instances combine high compute resources with a high performance networking for High Performance Compute (HPC) applications and other demanding network-bound applications. Cluster Compute Instances provide similar functionality to other Amazon EC2 instances but have been specifically engineered to provide high performance networking.
+
+Amazon EC2 cluster placement group functionality allows users to group Cluster Compute Instances in clusters – allowing applications to get the low-latency network performance necessary for tightly-coupled node-to-node communication typical of many HPC applications. Cluster Compute Instances also provide significantly increased network throughput both within the Amazon EC2 environment and to the Internet. As a result, these instances are also well suited for customer applications that need to perform network-intensive operations.
+
+Learn more about use of this instance type for HPC applications.
+
+Q. What kind of network performance can I expect when I launch instances in cluster placement group?
+
+The bandwidth an EC2 instance can utilize in a cluster placement group depends on the instance type and its networking performance specification. When launched in a placement group, select EC2 instances can utilize up to 10 Gbps for single-flow and 20 Gbps for multi-flow traffic in each direction (full duplex). Network traffic outside a cluster placement group (e.g. to the Internet) is limited to 5 Gbps (full duplex).
+
+Q. What is a Cluster GPU Instance?
+
+Cluster GPU Instances provide general-purpose graphics processing units (GPUs) with proportionally high CPU and increased network performance for applications benefiting from highly parallelized processing that can be accelerated by GPUs using the CUDA and OpenCL programming models. Common applications include modeling and simulation, rendering and media processing.
+
+Cluster GPU Instances give customers with HPC workloads an option beyond Cluster Compute Instances to further customize their high performance clusters in the cloud for applications that can benefit from the parallel computing power of GPUs.
+
+Cluster GPU Instances use the same cluster placement group functionality as Cluster Compute Instances for grouping instances into clusters – allowing applications to get the low-latency, high bandwidth network performance required for tightly-coupled node-to-node communication typical of many HPC applications.
+
+Learn more about HPC on AWS.
+
+Q. What is a High Memory Cluster Instance?
+
+High Memory Cluster Instances provide customers with large amounts of memory and CPU capabilities per instance in addition to high network capabilities. These instance types are ideal for memory intensive workloads including in-memory analytics systems, graph analysis and many science and engineering applications
+
+High Memory Cluster Instances use the same cluster placement group functionality as Cluster Compute Instances for grouping instances into clusters – allowing applications to get the low-latency, high bandwidth network performance required for tightly-coupled node-to-node communication typical of many HPC and other network intensive applications.
+
+ 
+
+Q. Does use of Cluster Compute and Cluster GPU Instances differ from other Amazon EC2 instance types?
+
+Cluster Compute and Cluster GPU Instances use differs from other Amazon EC2 instance types in two ways.
+
+First, Cluster Compute and Cluster GPU Instances use Hardware Virtual Machine (HVM) based virtualization and run only Amazon Machine Images (AMIs) based on HVM virtualization. Paravirtual Machine (PVM) based AMIs used with other Amazon EC2 instance types cannot be used with Cluster Compute or Cluster GPU Instances.
+
+Second, in order to fully benefit from the available low latency, full bisection bandwidth between instances, Cluster Compute and Cluster GPU Instances must be launched into a cluster placement group through the Amazon EC2 API or AWS Management Console.
+
+Q. What is a cluster placement group?
+
+A cluster placement group is a logical entity that enables creating a cluster of instances by launching instances as part of a group. The cluster of instances then provides low latency, full bisection 10 Gigabit Ethernet bandwidth connectivity between instances in the group. Cluster placement groups are created through the Amazon EC2 API or AWS Management Console.
+
+Q. Are all features of Amazon EC2 available for Cluster Compute and Cluster GPU Instances?
+
+Currently, Amazon DevPay is not available for Cluster Compute or Cluster GPU Instances.
+
+Q. Is there a limit on the number of Cluster Compute or Cluster GPU Instances I can use and/or the size of cluster I can create by launching Cluster Compute Instances or Cluster GPU into a cluster placement group?
+There is no limit specific for Cluster Compute Instances. For Cluster GPU Instances, you can launch 2 Instances on your own. If you need more capacity, please complete the Amazon EC2 instance request form (selecting the appropriate primary instance type).
+
+Q. Are there any ways to optimize the likelihood that I receive the full number of instances I request for my cluster via a cluster placement group?
+
+We recommend that you launch the minimum number of instances required to participate in a cluster in a single launch. For very large clusters, you should launch multiple placement groups, e.g. two placement groups of 128 instances, and combine them to create a larger, 256 instance cluster.
+
+Q. Can Cluster GPU and Cluster Compute Instances be launched into a single cluster placement group?
+
+While it may be possible to launch different cluster instance types into a single placement group, at this time we only support homogenous placement groups.
+
+Q. If an instance in a cluster placement group is stopped then started again, will it maintain its presence in the cluster placement group?
+
+Yes. A stopped instance will be started as part of the cluster placement group it was in when it stopped. If capacity is not available for it to start within its cluster placement group, the start will fail.
+High I/O Instances
+Q. What is a High I/O instance?
+
+High I/O instances use NVMe based local instance storage to deliver very high, low latency, I/O capacity to applications, and are optimized for applications that require millions of IOPS. Like Cluster instances, High I/O instances can be clustered via cluster placement groups for high bandwidth networking.
+Q. Are all features of Amazon EC2 available for High I/O instances?
+
+High I/O instance support all Amazon EC2 features. I3 instances offer NVMe only storage, while previous generation I2 instances allow legacy blkfront storage access. Currently you can only purchase High I/O instances as On-Demand, Reserved Instances or as Spot instances.
+Q. Is there a limit on the number of High I/O instances I can use?
+
+Currently, you can launch 2 i3.16xlarge instances by default. If you wish to run more than 2 On-Demand instances, please complete the Amazon EC2 instance request form.
+
+Q. How many IOPS can i3.16.xlarge instances deliver?
+
+Using HVM AMIs, High I/O I3 instances can deliver up to 3.3 million IOPS measured at 100% random reads using 4KB block size, and up to 300,000 100% random write IOPs, measured at 4KB block sizes to applications across 8 x 1.9 TB NVMe devices.  
+Q. How many IOPS can hi1.4xlarge instances deliver?
+
+Using Linux PV AMIs, High I/O instances can deliver more than 120,000 4K random read IOPS and 10,000-85,000 4K random write IOPS (depending on active LBA span) to applications across 2 * 1 TiB data volumes. For HVM and Windows AMIs, performance will be around 90,000 4K random read IOPS and 9,000-75,000 4K random write IOPS.
+
+Q. What is the sequential throughput of i3 instances?
+
+The maximum sequential throughput, measured at 128K block sizes is 16 GB/s read throughput and 6.4 GB/s write throughput.
+
+Q. What is the sequential throughput of hi1.4xlarge instances?
+
+Sequential throughput on all AMI types (Linux PV, Linux HVM and Windows) is approximately 2 GB/s read and 1.1 GB/s write.
+
+Q. AWS has other database and Big Data offerings. When or why should I use High I/O instances?
+
+High I/O instances are ideal for applications that require access to millions of low latency IOPS, and can leverage data stores and architectures that manage data redundancy and availability. Example applications are:
+NoSQL databases like Cassandra and MongoDB
+In-memory databases like Aerospike
+Elasticsearch and analytics workloads
+OLTP systems
+Q. Do High I/O instances provide any failover mechanisms or redundancy?
+
+Like other Amazon EC2 instance types, instance storage on i3.16xlarge instances persists during the life of the instance. Customers are expected to build resilience into their applications. We recommend using databases and file systems that support redundancy and fault tolerance. Customers should back up data periodically to Amazon S3 for improved data durability.
+Q. Do High I/O instances support TRIM?
+
+The TRIM command allows the operating system to inform SSDs which blocks of data are no longer considered in use and can be wiped internally. In the absence of TRIM, future write operations to the involved blocks can slow down significantly. I3 instances support TRIM.
+Burstable Performance Instances
+Q: How are Burstable Performance Instances different?
+Amazon EC2 allows you to choose between Fixed Performance Instances (e.g. M3, C3, and R3) and Burstable Performance Instances (e.g. T2). Burstable Performance Instances provide a baseline level of CPU performance with the ability to burst above the baseline. T2 instances are for workloads that don’t use the full CPU often or consistently, but occasionally need to burst.
+T2 instances’ baseline performance and ability to burst are governed by CPU Credits. Each T2 instance receives CPU Credits continuously, the rate of which depends on the instance size. T2 instances accrue CPU Credits when they are idle, and use CPU credits when they are active. A CPU Credit provides the performance of a full CPU core for one minute. The following table shows the maximum credit balance and baseline performance for each T2 instance size. Each vCPU of a T2 instance can consume CPU Credits at a maximum rate of 60 per hour when bursting to full core performance.
+
+For example, a t2.small instance receives credits continuously at a rate of 12 CPU Credits per hour. This capability provides baseline performance equivalent to 20% of a CPU core. If at any moment the instance does not need the credits it receives, it stores them in its CPU Credit balance for up to 24 hours. If and when your t2.small needs to burst to more than 20% of a core, it draws from its CPU Credit balance to handle this surge seamlessly. Over time, if you find your workload needs more CPU Credits that you have, or your instance does not maintain a positive CPU Credit balance, we recommend either a larger T2 size, such as the t2.medium, or a Fixed Performance Instance type.
+
+Many applications such as web servers, developer environments and small databases don’t need consistently high levels of CPU, but benefit significantly from having full access to very fast CPUs when they need them. T2 instances are engineered specifically for these use cases. If you need consistently high CPU performance for applications such as video encoding, high volume websites or HPC applications, we recommend you use Fixed Performance Instances. T2 instances are designed to perform as if they have dedicated high-speed Intel cores available when your application really needs CPU performance, while protecting you from the variable performance or other common side effects you might typically see from over-subscription in other environments.
+
+ 
+
+ 
+
+ 
+
+Q. How do I choose the right Amazon Machine Image (AMI) for my t2.nano instances?
+
+T2.nano, our smallest Burstable Performance Instance size, offers 512 MiB of memory and is designed to offer the full performance of a high frequency Intel CPU core as long as you maintain a CPU credit balance. Your t2.nano maintains a positive credit balance if your workload utilizes less than 5% of the core on average over 24 hours. If your workload uses more than 5% CPU on average, consider a larger t2 instance size, such as the t2.micro. You will want to verify that the minimum memory requirements of your operating system and applications are within 512 MiB. Operating systems with Graphical User Interfaces (GUI) that consume significant memory and CPU, for example Microsoft Windows, might need a t2.micro or larger instance size for many use cases. You can find AMIs suitable for the t2.nano instance type on AWS Marketplace. Windows customers who do not need the GUI can use the Microsoft Windows Server 2012 R2 Core AMI.
+
+Q: When should I choose a Burstable Performance Instance, such as T2?
+
+Workloads ideal for Burstable Performance Instances (e.g., web servers, developer environments, and small databases) don’t use the full CPU often or consistently, but occasionally need to burst. If your application requires sustained high CPU performance, we recommend our Fixed Performance Instances, such as M3, C3, and R3.
+
+Q: How can I see the CPU Credit balance for each T2 instance?
+
+You can see the CPU Credit balance for each T2 instance in EC2 per-Instance metrics in Amazon CloudWatch. T2 instances have two new metrics, CPUCreditUsage and CPUCreditBalance. CPUCreditUsage indicates the amount of CPU Credits used. CPUCreditBalance indicates the balance of CPU Credits.
+
+Q: What happens to CPU performance if my T2 instance is running low on credits (CPU Credit balance is near zero)?
+
+If your T2 instance has a zero CPU Credit balance, performance will remain at baseline CPU performance. For example, the t2.micro provides baseline CPU performance of 10% of a physical CPU core. If your instance’s CPU Credit balance is approaching zero, CPU performance will be lowered to baseline performance over a 15-minute interval.
+
+Q: Does my T2 instance credit balance persist a stop / start?
+
+No, a stopped instance does not retain its previously earned credit balance.
+
+Q: Can T2 instances be purchased as Reserved Instances or Spot Instances?
+On-Demand instances and Reserved Instances are the only purchase options available for T2 instances.
+
+Q: How is T2 different from the T1?
+
+Compared to the t1.micro, the t2.micro features better CPU performance, more memory, and lower prices. The T2 family also offers more than one size.
+
+ 
+
+Dense-storage Instances
+Q. What is a Dense-storage Instance?
+
+Dense-storage instances are designed for workloads that require high sequential read and write access to very large data sets, such as Hadoop distributed computing, massively parallel processing data warehousing, and log processing applications. The Dense-storage instances offer the best price/GB-storage and price/disk-throughput across other EC2 instances.
+
+Q. How do Dense-storage instances compare to High I/O instances? 
+
+High I/O instances (I2) are targeted at workloads that demand low latency and high random I/O in addition to moderate storage density and provide the best price/IOPS across other EC2 instance types. Dense-storage instances (D2) are optimized for applications that require high sequential read/write access and low cost storage for very large data sets and provide the best price/GB-storage and price/disk-throughput across other EC2 instances.
+ 
+
+Q. How much disk throughput can Dense-storage instances deliver?
+The largest current generation of Dense-storage instances, d2.8xlarge, can deliver up to 3.5 GBps read and 3.1 GBps write disk throughput with a 2 MiB block size. To ensure the best disk throughput performance from your D2 instances on Linux, we recommend that you use the most recent version of the Amazon Linux AMI, or another Linux AMI with a kernel version of 3.8 or later that supports persistent grants - an extension to the Xen block ring protocol that significantly improves disk throughput and scalability.
+Q. Do Dense-storage instances provide any failover mechanisms or redundancy?
+The primary data storage for Dense-storage instances is HDD-based instance storage. Like all instance storage, these storage volumes persist only for the life of the instance. Hence, we recommend that you build a degree of redundancy (e.g. RAID 1/5/6) or use file systems (e.g. HDFS and MapR-FS) that support redundancy and fault tolerance. You can also back up data periodically to more durable data storage solutions such as Amazon Simple Storage Service (S3) for additional data durability. Please refer to Amazon S3 for reference.
+
+Q. How do Dense-storage instances differ from Amazon EBS?
+
+Amazon EBS offers simple, elastic, reliable (replicated), and persistent block level storage for Amazon EC2 while abstracting the details of the underlying storage media in use. Amazon EC2 instance storage provides directly attached non-persistent, high performance storage building blocks that can be used for a variety of storage applications. Dense-storage instances are specifically targeted at customers who want high sequential read/write access to large data sets on local storage, e.g. for Hadoop distributed computing and massively parallel processing data warehousing.
+
+Q. Can I launch D2 instances as Amazon EBS-optimized instances?
+
+Each D2 instance type is EBS-optimized by default. D2 instances 500 Mbps to 4,000 Mbps to EBS above and beyond the general-purpose network throughput provided to the instance. Since this feature is always enabled on D2 instances, launching a D2 instance explicitly as EBS-optimized will not affect the instance's behavior.
+
+Q. Are Dense-storage instances offered in EC2 Classic?
+
+The current generation of Dense-storage instances (D2 instances) can be launched in both EC2-Classic and Amazon VPC. However, by launching a Dense-storage instance into a VPC, you can leverage a number of features that are available only on the Amazon VPC platform – such as enabling enhanced networking, assigning multiple private IP addresses to your instances, or changing your instances' security groups. For more information about the benefits of using a VPC, see Amazon EC2 and Amazon Virtual Private Cloud (Amazon VPC). You can take steps to migrate your resources from EC2-Classic to Amazon VPC. For more information, see Migrating a Linux Instance from EC2-Classic to a VPC.
+
+Memory Optimized Instances
+Q. When should I use Memory-optimized instances?
+Memory-optimized instances offer large memory size for memory intensive applications including in-memory applications, in-memory databases, in-memory analytics solutions, High Performance Computing (HPC), scientific computing, and other memory-intensive applications.
+
+Q. When should I use X1 instances?
+X1 instances are ideal for running in-memory databases like SAP HANA, big data processing engines like Apache Spark or Presto, and high performance computing (HPC) applications. X1 instances are certified by SAP to run production environments of the next-generation Business Suite S/4HANA, Business Suite on HANA (SoH), Business Warehouse on HANA (BW), and Data Mart Solutions on HANA on the AWS cloud.
+
+Q. What are the key specifications of Intel E7 Haswell processors that power X1 instances?
+X1 is the first Amazon EC2 instance type that is powered by four 2.3 GHz Intel® Xeon® E7 8880 v3 (Haswell) processors, which are optimized for enterprise and database workloads. The E7 processors have a high core count to support workloads that scale efficiently on large number of cores. The Intel E7 processors also feature high memory bandwidth and larger L3 caches to boost the performance of in-memory applications. In addition, the Intel E7 processor:
+• Enables increased cryptographic performance via the latest Intel AES-NI feature.
+• Supports Transactional Synchronization Extensions (TSX) to boost the performance of in-memory transactional data processing.
+• Supports Advanced Vector Extensions 2 (Intel AVX2) processor instructions to expand most integer commands to 256 bits.
+
+Q. Do X1 instances enable CPU power management state control?
+Yes. You can configure C-states and P-states on both x1.32xlarge and x1.16xlarge. You can use C-states to enable higher turbo frequencies (as much as 3.1 Ghz with one or two core turbo). You can also use P-states to lower performance variability by pinning all cores at P1 or higher P states, which is similar to disabling Turbo, and running consistently at the base CPU clock speed.
+
+Q: What operating systems are supported on X1 instances?
+
+X1 instances provide high number of vCPUs, which might cause launch issues in some Linux operating systems that have a lower vCPU limit. We strongly recommend that you use the latest AMIs when you launch X1 instances. The following Linux AMIs support launching X1 instances: Amazon Linux AMI 2016.03 (HVM), Ubuntu Server 14.04 LTS (HVM), and Red Hat Enterprise Linux 7.1 (HVM), and SUSE Linux 12 SP1.
+
+AMI support for SAP HANA workloads include: SUSE Linux 12, SUSE Linux 12 SP1, SLES for SAP 12 SP1 (due to kernel requirement of 3.10 or higher). For SAP NetWeaver on AnyDB, the latest RHEL 7.x images are currently supported.
+
+x1.32xlarge will also support Windows Server 2012 R2, 2012 RTM and 2008 R2 64bit (Windows Server 2008 SP2 and older versions will not be supported) and x1.16xlarge will support Windows Server 2012 R2, 2012 RTM, 2008 R2 64bit, 2008 SP2 64bit, and 2003 R2 64bit (Windows Server 32bit versions will not be supported).
+
+Q. What storage options are available for X1 customers?
+
+X1 instances offer SSD based instance store, which is ideal for temporary storage of information such as logs, buffers, caches, temporary tables, temporary computational data, and other temporary content. X1 instance store provides the best I/O performance when you use a Linux kernel that supports persistent grants, an extension to the Xen block ring protocol.
+X1 instances are EBS-optimized by default and offer up to 10 Gbps of dedicated bandwidth to EBS volumes. EBS offers multiple volume types to support a wide variety of workloads. For more information see the EC2 User Guide.
+
+Q. How do I build cost-effective failover solution on X1 instances?
+You can design simple and cost-effective failover solutions on X1 instances using Amazon EC2 Auto Recovery, an Amazon EC2 feature that is designed to better manage failover upon instance impairment. You can enable Auto Recovery for X1 instances by creating an AWS CloudWatch alarm. Choose the “EC2 Status Check Failed (System)” metric and select the “Recover this instance” action. Instance recovery is subject to underlying limitations, including those reflected in the Instance Recovery Troubleshooting documentation. For more information visit Auto Recovery documentation and Creating Amazon CloudWatch Alarms respectively.
+
+Q. Are there standard SAP HANA reference deployment frameworks available for the X1 instance and the AWS cloud?
+You can use the AWS Quick Start reference HANA deployments to rapidly deploy all the necessary HANA building blocks on X1 instances following SAP’s recommendations for high performance and reliability. AWS Quick Starts are modular and customizable, so you can layer additional functionality on top or modify them for your own implementations. For additional information on deploying HANA on AWS, please refer to SAP HANA on AWS Cloud: Quick Start Reference Deployment Guide.
+
+F1 Instances
+Q. What are FPGAs and why do I need them?
+
+FPGAs are programmable integrated circuits that you can configure using software. By using FPGAs you can accelerate your applications up to 30x when compared with servers that use CPUs alone. And, FPGAs are reprogrammable, so you get the flexibility to update and optimize your hardware acceleration without having to redesign the hardware.
+
+Q. What is Amazon EC2 F1?
+
+Amazon EC2 F1 is a new compute instance with programmable hardware you can use for application acceleration. The new F1 instance type provides a high performance, easy to access FPGA for developing and deploying custom hardware accelerations.
+
+Q. How does F1 compare with traditional FPGA solutions?
+
+F1 is an AWS instance with programmable hardware for application acceleration. With F1, you have access to FPGA hardware in a few simple clicks, reducing the time and cost of full-cycle FPGA development and scale deployment from months or years to days. While FPGA technology has been available for decades, adoption of application acceleration has struggled to be successful in both the development of accelerators and the business model of selling custom hardware for traditional enterprises, due to time and cost in development infrastructure, hardware design, and at-scale deployment. With this offering, customers avoid the undifferentiated heavy lifting associated with developing FPGAs in on-premises data centers.
+
+Q: What is an Amazon FPGA Image (AFI)?
+
+The design that you create to program your FPGA is called an Amazon FPGA Image (AFI). AWS provides a service to ingest, manage, and encrypt AFIs. After an AFI is registered, it can be associated to an Amazon Machine Image (AMI) or a running F1 instance.&nbsp;You can associate multiple AFIs to the same F1 instance or AMI concurrently, and an instance can switch between AFIs in runtime without reboot. This lets you quickly test and run multiple hardware accelerations in rapid sequence. Once an AFI is associated with an AMI, you can also offer your FPGA acceleration to other customers on the AWS Marketplace.
+
+Q. What is available with F1 instances?
+
+For developers, AWS is providing a Hardware Development Kit (HDK) to help accelerate development cycles, an FPGA Developer AMI for development in the cloud, an SDK for AMIs running the F1 instance, and a service to ingest, manage, and secure AFIs. Both developers and customers have access to the AWS Marketplace where AFIs can be listed and purchased for use in application accelerations. 
+
+Q. Do I need to be an FPGA expert to use an F1 instance?
+
+AWS customers subscribing to an F1-optimized AMI from AWS Marketplace do not need to know anything about FPGAs to take advantage of the accelerations provided by the F1 instance and the AWS Marketplace. Simply purchase an F1-optimized AMI from the AWS Marketplace with an acceleration that matches the workload. The AMI contains all the software necessary for using the FPGA acceleration. Customers need only write software to the specific API for that accelerator and start using the accelerator.
+
+Q. I’m an FPGA developer, how do I get started with F1 instances?
+
+Developers can get started on the F1 instance by creating an AWS account and downloading the AWS Hardware Development Kit (HDK). The HDK includes documentation on F1, internal FPGA interfaces, and compiler scripts for generating AFI. Developers can start writing their FPGA code to the documented interfaces included in the HDK to create their acceleration function. Developers can launch AWS instances with the FPGA Developer AMI. This AMI includes the developments tools need to compile and simulate the FPGA code. The Developer AMI is best run on the latest C4 or C5 EC2 instances. Developers should have experience in the programming languages used for creating FPGA code (i.e. Verilog or VHDL) and an understanding of the operation they wish to accelerate.
+
+Q. I’m not an FPGA developer, how do I get started with F1 instances?
+
+Customers can get started with F1 instances by selecting an accelerator from the AWS Marketplace, provided by AWS Marketplace sellers, and launching an F1 instance with that AMI. The AMI includes all of the software and APIs for that accelerator. AWS manages programming the FPGA with the AFI for that accelerator. Customers do not need any FPGA experience or knowledge to use these accelerators. They can work completely at the software API level for that accelerator.
+
+Q. Does AWS provide a developer kit?
+
+Yes. The Hardware Development Kit (HDK) includes simulation tools and simulation models for developers to simulate, debug, build, and register their acceleration code. The HDK includes code samples, compile scripts, debug interfaces, and many other tools you will need to develop the FPGA code for your F1 instances. You can use the HDK either in an AWS provided AMI, or in your on-premises development environment. These models and scripts are available publically with an AWS account.
+
+Q. Can I add an FPGA to any EC2 instance type?
+
+No. Today, the F1 instance comes in two instance sizes f1.2xlarge and f1.16 xlarge.  For detailed specifications click here.
+
+Previous Generation Instances
+Q: Why don’t I see M1, C1, CC2, HI1, CG1, and HS1 instances on the pricing pages any more?
+
+These have been moved to the Previous Generation Instance page.
+ 
+
+Q: Are these Previous Generation instances still being supported?
+Yes. Previous Generation instances are still fully supported.
+
+ 
+
+Q: Can I still use/add more Previous Generation instances?
+
+Yes. Previous Generation instances are still available as On-Demand, Reserved Instances, and Spot Instance, from our APIs, CLI, and EC2 Management Console interface.
+
+ 
+
+Q: Are my Previous Generation instances going to be deleted?
+
+No. Your M1, C1, CC2, HI1, CG1, and HS1 instances are still fully functional and will not be deleted because of this change.
+
+ 
+
+Q: Are Previous Generation instances being discontinued soon?
+Currently, there are no plans to end of life Previous Generation instances. However, with any rapidly evolving technology the latest generation will typically provide the best performance for the price and we encourage our customers to take advantage of technological advancements.
+
+Q: Will my Previous Generation instances I purchased as a Reserved Instance be affected or changed?
+No. Your Reserved Instances will not change, and the Previous Generation instances are not going away.
+
+
+ 
+
+VM Import/Export
+Q. What is VM Import/Export?
+
+VM Import/Export enables customers to import Virtual Machine (VM) images in order to create Amazon EC2 instances. Customers can also export previously imported EC2 instances to create VMs. Customers can use VM Import/Export to leverage their previous investments in building VMs by migrating their VMs to Amazon EC2.
+
+Q. What operating systems are supported?
+
+VM Import/Export currently supports Windows and Linux VMs, including Windows Server 2003, Windows Server 2003 R2, Windows Server 2008, Windows Server 2012 R1, Red Hat Enterprise Linux (RHEL) 5.1-6.5 (using Cloud Access), Centos 5.1-6.5, Ubuntu 12.04, 12.10, 13.04, 13.10, and Debian 6.0.0-6.0.8, 7.0.0-7.2.0. For more details on VM Import, including supported file formats, architectures, and operating system configurations, please see the VM Import/Export section of the Amazon EC2 User Guide.
+
+Q. What virtual machine file formats are supported?
+
+You can import VMware ESX VMDK images, Citrix Xen VHD images, Microsoft Hyper-V VHD images and RAW images as Amazon EC2 instances. You can export EC2 instances to VMware ESX VMDK, VMware ESX OVA, Microsoft Hyper-V VHD or Citrix Xen VHD images. For a full list of support operating systems, please see What operating systems are supported?.
+
+Q. What is VMDK?
+
+VMDK is a file format that specifies a virtual machine hard disk encapsulated within a single file. It is typically used by virtual IT infrastructures such as those sold by VMware, Inc.
+
+Q. How do I prepare a VMDK file for import using the VMware vSphere client?
+
+The VMDK file can be prepared by calling File-Export-Export to OVF template in VMware vSphere Client. The resulting VMDK file is compressed to reduce the image size and is compatible with VM Import/Export. No special preparation is required if you are using the Amazon EC2 VM Import Connector vApp for VMware vCenter.
+
+Q. What is VHD?
+
+VHD (Virtual Hard Disk) is a file format that that specifies a virtual machine hard disk encapsulated within a single file. The VHD image format is used by virtualization platforms such as Microsoft Hyper-V and Citrix Xen.
+
+Q. How do I prepare a VHD file for import from Citrix Xen?
+
+Open Citrix XenCenter and select the virtual machine you want to export. Under the Tools menu, choose "Virtual Appliance Tools" and select "Export Appliance" to initiate the export task. When the export completes, you can locate the VHD image file in the destination directory you specified in the export dialog.
+
+Q. How do I prepare a VHD file for import from Microsoft Hyper-V?
+
+Open the Hyper-V Manager and select the virtual machine you want to export. In the Actions pane for the virtual machine, select "Export" to initiate the export task. Once the export completes, you can locate the VHD image file in the destination directory you specified in the export dialog.
+
+Q. Are there any other requirements when importing a VM into Amazon EC2?
+
+The virtual machine must be in a stopped state before generating the VMDK or VHD image. The VM cannot be in a paused or suspended state. We suggest that you export the virtual machine with only the boot volume attached. You can import additional disks using the ImportVolume command and attach them to the virtual machine using AttachVolume. Additionally, encrypted disks (e.g. Bit Locker) and encrypted image files are not supported. You are also responsible for ensuring that you have all necessary rights and licenses to import into AWS and run any software included in your VM image.
+
+Q. Does the virtual machine need to be configured in any particular manner to enable import to Amazon EC2?
+
+Ensure Remote Desktop (RDP) or Secure Shell (SSH) is enabled for remote access and verify that your host firewall (Windows firewall, iptables, or similar), if configured, allows access to RDP or SSH. Otherwise, you will not be able to access your instance after the import is complete. Please also ensure that Windows VMs are configured to use strong passwords for all users including the administrator and that Linux VMs and configured with a public key for SSH access.
+
+Q. How do I import a virtual machine to an Amazon EC2 instance?
+
+You can import your VM images using the Amazon EC2 API tools:
+
+Import the VMDK, VHD or RAW file via the ec2-import-instance API. The import instance task captures the parameters necessary to properly configure the Amazon EC2 instance properties (instance size, Availability Zone, and security groups) and uploads the disk image into Amazon S3.
+If ec2-import-instance is interrupted or terminates without completing the upload, use ec2-resume-import to resume the upload. The import task will resume where it left off.
+Use the ec2-describe-conversion-tasks command to monitor the import progress and obtain the resulting Amazon EC2 instance ID.
+Once your import task is completed, you can boot the Amazon EC2 instance by specifying its instance ID to the ec2-run-instances API.
+Finally, use the ec2-delete-disk-image command line tool to delete your disk image from Amazon S3 as it is no longer needed.
+Alternatively, if you use the VMware vSphere virtualization platform, you can import your virtual machine to Amazon EC2 using a graphical user interface provided through AWS Management Portal for vCenter. Please refer to Getting Started Guide in AWS Management Portal for vCenter. AWS Management Portal for vCenter includes integrated support for VM Import. Once the portal is installed within vCenter, you can right-click on a VM and select “Migrate to EC2” to create an EC2 instance from the VM. The portal will handle exporting the VM from vCenter, uploading it to S3, and converting it into an EC2 instance for you, with no additional work required. You can also track the progress of your VM migrations within the portal.
+
+Q. How do I export an Amazon EC2 instance back to my on-premise virtualization environment?
+
+You can export your Amazon EC2 instance using the Amazon EC2 CLI tools:
+
+Export the instance using the ec2-create-instance-export-task command. The export command captures the parameters necessary (instance ID, S3 bucket to hold the exported image, name of the exported image, VMDK, OVA or VHD format) to properly export the instance to your chosen format. The exported file is saved in an S3 bucket that you previously created
+Use ec2-describe-export-tasks to monitor the export progress
+Use ec2-cancel-export-task to cancel an export task prior to completion
+ 
+
+Q. Are there any other requirements when exporting an EC2 instance using VM Import/Export?
+
+You can export running or stopped EC2 instances that you previously imported using VM Import/Export. If the instance is running, it will be momentarily stopped to snapshot the boot volume. EBS data volumes cannot be exported. EC2 instances with more than one network interface cannot be exported.
+
+Q. Can I export Amazon EC2 instances that have one or more EBS data volumes attached?
+
+Yes, but VM Import/Export will only export the boot volume of the EC2 instance.
+
+Q. What does it cost to import a virtual machine?
+
+You will be charged standard Amazon S3 data transfer and storage fees for uploading and storing your VM image file. Once your VM is imported, standard Amazon EC2 instance hour and EBS service fees apply. If you no longer wish to store your VM image file in S3 after the import process completes, use the ec2-delete-disk-image command line tool to delete your disk image from Amazon S3.
+
+Q. What does it cost to export a virtual machine?
+
+You will be charged standard Amazon S3 storage fees for storing your exported VM image file. You will also be charged standard S3 data transfer charges when you download the exported VM file to your on-premise virtualization environment. Finally, you will be charged standard EBS charges for storing a temporary snapshot of your EC2 instance. To minimize storage charges, delete the VM image file in S3 after downloading it to your virtualization environment.
+
+Q. When I import a VM of Windows Server 2003 or 2008, who is responsible for supplying the operating system license?
+
+When you launch an imported VM using Microsoft Windows Server 2003 or 2008, you will be charged standard instance hour rates for Amazon EC2 running the appropriate Windows Server version, which includes the right to utilize that operating system within Amazon EC2. You are responsible for ensuring that all other installed software is properly licensed.
+
+So then, what happens to my on-premise Microsoft Windows license key when I import a VM of Windows Server 2003 or 2008? Since your on-premise Microsoft Windows license key that was associated with that VM is not used when running your imported VM as an EC2 instance, you can reuse it for another VM within your on-premise environment.
+
+Q. Can I continue to use the AWS-provided Microsoft Windows license key after exporting an EC2 instance back to my on-premise virtualization environment?
+
+No. After an EC2 instance has been exported, the license key utilized in the EC2 instance is no longer available. You will need to reactivate and specify a new license key for the exported VM after it is launched in your on-premise virtualization platform.
+
+Q. When I import a VM with Red Hat Enterprise Linux (RHEL), who is responsible for supplying the operating system license?
+
+When you import Red Hat Enterprise Linux (RHEL) VM images, you can use license portability for your RHEL instances. With license portability, you are responsible for maintaining the RHEL licenses for imported instances, which you can do using Cloud Access subscriptions for Red Hat Enterprise Linux. Please contact Red Hat to learn more about Cloud Access and to verify your eligibility.
+
+Q. How long does it take to import a virtual machine?
+
+The length of time to import a virtual machine depends on the size of the disk image and your network connection speed. As an example, a 10 GB Windows Server 2008 SP2 VMDK image takes approximately 2 hours to import when it’s transferred over a 10 Mbps network connection. If you have a slower network connection or a large disk to upload, your import may take significantly longer.
+
+Q. In which Amazon EC2 regions can I use VM Import/Export?
+
+Visit the Region Table page to see product service availability by region.
+Q. How many simultaneous import or export tasks can I have?
+
+Each account can have up to five active import tasks and five export tasks per region.
+
+Q. Can I run imported virtual machines in Amazon Virtual Private Cloud (VPC)?
+
+Yes, you can launch imported virtual machines within Amazon VPC.
+
+Q. Can I use the AWS Management Console with VM Import/Export?
+
+No. VM Import/Export commands are available via EC2 CLI and API. You can also use the AWS Management Portal for vCenter to import VMs into Amazon EC2. Once imported, the resulting instances are available for use via the AWS Management Console.
+
+ 
+
+Amazon EC2 Running Microsoft Windows and Other Third-Party Software
+Q. Can I use my existing Windows Server license with EC2?
+
+Yes you can. After you’ve imported your own Windows Server machine images using the ImportImage tool, you can launch instances from these machine images on EC2 Dedicated Hosts and effectively manage instances and report usage. Microsoft typically requires that you track usage of your licenses against physical resources such as sockets and cores and Dedicated Hosts helps you to do this. Visit the Dedicated Hosts detail page for more information on how to use your own Windows Server licenses on Amazon EC2 Dedicated Hosts.
+Q. What software licenses can I bring to the Windows environment?
+
+Specific software license terms vary from vendor to vendor. Therefore, we recommend that you check the licensing terms of your software vendor to determine if your existing licenses are authorized for use in Amazon EC2.
+Amazon EC2 Running IBM
+Q. How am I billed for my use of Amazon EC2 running IBM?
+
+You pay only for what you use and there is no minimum fee. Pricing is per instance-hour consumed for each instance type. Partial instance-hours consumed are billed as full hours. Data transfer for Amazon EC2 running IBM is billed and tiered separately from Amazon EC2. There is no Data Transfer charge between two Amazon Web Services within the same region (i.e. between Amazon EC2 US West and another AWS service in the US West). Data transferred between AWS services in different regions will be charged as Internet Data Transfer on both sides of the transfer.
+
+For Amazon EC2 running IBM pricing information, please visit the pricing section on the Amazon EC2 running IBM detail page.
+
+Q. Can I use Amazon DevPay with Amazon EC2 running IBM?
+
+No, you cannot use DevPay to bundle products on top of Amazon EC2 running IBM at this time.
+
+Service Level Agreement (SLA)
+Q. What does your Amazon EC2 Service Level Agreement guarantee?
+
+Our SLA guarantees a Monthly Uptime Percentage of at least 99.95% for Amazon EC2 and Amazon EBS within a Region.
+
+Q. How do I know if I qualify for a SLA Service Credit?
+
+You are eligible for a SLA credit for either Amazon EC2 or Amazon EBS (whichever was Unavailable, or both if both were Unavailable) if the Region that you are operating in has an Monthly Uptime Percentage of less than 99.95% during any monthly billing cycle. For full details on all of the terms and conditions of the SLA, as well as details on how to submit a claim, please see http://aws.amazon.com/ec2/sla/
+
+© 2017, Amazon Web Services, Inc. or its affiliates. All rights reserved.

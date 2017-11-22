@@ -1,0 +1,30 @@
+Volumes and Snapshots:
+======================
+1. aws console > EBS > volumes > create volumes
+2. select volume type
+3. connect to EC2 instance
+ssh ec2-user@52.56.53.250 -i MyEC2KeyPair.pem
+
+]# sudo su
+
+get volume info:
+]# lsblk
+
+check if volume has any data
+]# file -s /dev/xvdf
+
+create mount directory
+]# mkdir myfileserver
+
+format volume
+]# mkfs -t ext4 /dev/xvdf
+
+mount volume
+
+]# mount /dev/xvdf /myfileserver
+
+]# cd myfileserver
+
+]# ls
+
+should be empty
