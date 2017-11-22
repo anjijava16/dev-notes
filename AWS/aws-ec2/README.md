@@ -130,6 +130,23 @@ Read More about [EBS Snapshots!](ebs-snapshots-explained.md)
 8. Create & download Key Pair
 
 
+## Types of EC2 Computing Instances:
+
+AWS EC2 offers 5 types of instances which are as follows:
+
+1. General Instances (t2, m4, m3)
+    For applications that require a balance of performance and cost. E.g email responding systems, where you need a prompt response as well as the it should be cost effective, since it doesn’t require much processing.
+2. Compute Instances (c4, c3)
+    For applications that require a lot of processing from the CPU. E.g analysis of data from a stream of data, like Twitter stream
+3. Memory Instances (r3, x1)
+    For applications that are heavy in nature, therefore, require a lot of RAM. E.g when your system needs a lot of applications running in the background i.e multitasking.
+4. Storage Instances (i2, d2)
+    For applications that are huge in size or have a data set that occupies a lot of space. E.g When your application is of huge size.
+5. GPU Instances (g2)
+    For applications that require some heavy graphics rendering. E.g 3D modelling etc.
+
+
+
 ## What you know 
 
 - You can only configure ALLOW rules for security groups. If there is not an explicit allow rules for a certain traffic type, then that traffic type will be denied.
